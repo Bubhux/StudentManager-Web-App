@@ -12,7 +12,7 @@
 ### Projet Student Manager Web App
 
 - Développer une interface web pour une application de management d'étudiants et de classes.  
-- Utilisation de **Python** et **Django** associé à une base de données **SQLite3**.   
+- Utilisation de **Python**, **Django** et **Bootstrap** associé à une base de données **SQLite3**.   
   &nbsp;   
 
 - Fonctinnalitées de l'application.   
@@ -39,6 +39,7 @@
   - **Python** v3.12.0 choisissez la version adaptée à votre ordinateur et système.   
   - **Python** est disponible à l'adresse suivante ➔ https://www.python.org/downloads/   
   - **Django** v.5.1.6   
+  - **Bootstrap** v.5.3.3   
   - **Windows 10** Professionnel   
     &nbsp;   
 
