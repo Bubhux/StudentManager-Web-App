@@ -1,0 +1,27 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<body class="d-flex align-items-center py-4 bg-body-tertiary">
+
+    <main class="container text-center">
+        <h1 class="mb-4">Gestion des classes</h1>
+
+        <a href="{% url 'display_classrooms' %}" class="btn btn-secondary btn-lg mb-3">Afficher les classes</a>
+        <a href="{% url 'add_classroom' %}" class="btn btn-secondary btn-lg mb-3">Créer une classe</a>
+        <a href="{% url 'update_classroom_info' %}" class="btn btn-secondary btn-lg mb-3">Modifier les informations d'une classe</a>
+        <a href="{% url 'add_students_to_classroom' %}" class="btn btn-secondary btn-lg mb-3">Ajouter des étudiants à une classe</a>
+        <a href="{% url 'delete_students_from_classroom' %}" class="btn btn-secondary btn-lg mb-3">Supprimer des étudiants d'une classe</a>
+        <a href="{% url 'calculate_classroom_average' %}" class="btn btn-secondary btn-lg mb-3">Calculer la moyenne d'une classe</a>
+        <a href="{% url 'delete_classroom' %}" class="btn btn-secondary btn-lg mb-3">Supprimer une classe</a>
+        <a href="{% url 'home' %}" class="btn btn-secondary btn-lg mb-3">Retour au menu précédent</a>
+
+        <p class="mt-5 mb-3 text-body-secondary">&copy; 2023–2025</p>
+    </main>
+
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
+
+{% endblock content %}
