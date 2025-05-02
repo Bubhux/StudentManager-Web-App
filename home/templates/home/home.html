@@ -8,9 +8,10 @@
     <main class="container text-center">
         <h1 class="mb-4">Bienvenue sur StudentManager</h1>
 
-        <a href="{% url 'student_management' %}" class="btn btn-secondary btn-lg mb-3">Gestion des étudiants</a>
-        <a href="{% url 'classroom_management' %}" class="btn btn-secondary btn-lg mb-3">Gestion des classes</a>
-        <a href="{% url 'quit_application' %}" class="btn btn-secondary btn-lg mb-3">Quitter l'application</a>
+        <!-- Ajout de d-block sur chaque bouton -->
+        <a href="{% url 'student_management' %}" class="btn btn-secondary btn-lg mb-3 d-block w-60 mx-auto">Gestion des étudiants</a>
+        <a href="{% url 'classroom_management' %}" class="btn btn-secondary btn-lg mb-3 d-block w-60 mx-auto">Gestion des classes</a>
+        <a href="{% url 'quit_application' %}" class="btn btn-secondary btn-lg mb-3 d-block w-60 mx-auto">Quitter l'application</a>
 
         <p class="mt-5 mb-3 text-body-secondary">&copy; 2023–2025</p>
     </main>
