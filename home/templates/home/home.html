@@ -3,15 +3,22 @@
 
 {% block content %}
 
+<style>
+
+  .btn-custom-hover:hover {
+      color: #c7c7c7 !important;
+  }
+</style>
+
 <body class="d-flex align-items-center py-4 bg-body-tertiary">
 
     <main class="container text-center">
         <h1 class="mb-4">Bienvenue sur StudentManager</h1>
 
         <!-- Ajout de d-block sur chaque bouton -->
-        <a href="{% url 'student_management' %}" class="btn btn-secondary btn-lg mb-3 d-block w-60 mx-auto">Gestion des étudiants</a>
-        <a href="{% url 'classroom_management' %}" class="btn btn-secondary btn-lg mb-3 d-block w-60 mx-auto">Gestion des classes</a>
-        <a href="{% url 'quit_application' %}" class="btn btn-secondary btn-lg mb-3 d-block w-60 mx-auto">Quitter l'application</a>
+        <a href="{% url 'student_management' %}" class="btn bg-transparent btn-secondary btn-lg mb-3 d-block w-60 mx-auto btn-custom-hover">Gestion des étudiants</a>
+        <a href="{% url 'classroom' %}" class="btn bg-transparent btn-secondary btn-lg mb-3 d-block w-60 mx-auto btn-custom-hover">Gestion des classes</a>
+        <a href="{% url 'quit_application' %}" class="btn bg-transparent btn-secondary btn-lg mb-3 d-block w-60 mx-auto btn-custom-hover">Quitter l'application</a>
 
         <p class="mt-5 mb-3 text-body-secondary">&copy; 2023–2025</p>
     </main>
