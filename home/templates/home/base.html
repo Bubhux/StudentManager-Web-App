@@ -20,6 +20,11 @@
     <style>
         .navbar-custom {
             height: 80px;
+            border-radius: 5px;
+            width: 99% !important;
+            border: var(--bs-card-border-width) solid var(--bs-card-border-color);
+            --bs-card-border-width: var(--bs-border-width);
+            --bs-card-border-color: var(--bs-border-color-translucent);
         }
 
         .bd-placeholder-img {
@@ -69,20 +74,19 @@
         }
 
         .btn-bd-primary {
-            --bd-violet-bg: #712cf9;
-            --bd-violet-rgb: 112.520718, 44.062154, 249.437846;
+            --bd-bg: #5d5d5d;
 
             --bs-btn-font-weight: 600;
             --bs-btn-color: var(--bs-white);
-            --bs-btn-bg: var(--bd-violet-bg);
-            --bs-btn-border-color: var(--bd-violet-bg);
+            --bs-btn-bg: var(--bd-bg);
+            --bs-btn-border-color: var(--bd-bg);
             --bs-btn-hover-color: var(--bs-white);
-            --bs-btn-hover-bg: #6528e0;
-            --bs-btn-hover-border-color: #6528e0;
+            --bs-btn-hover-bg: #4a4a4a;
+            --bs-btn-hover-border-color: #7e7e7e;
             --bs-btn-focus-shadow-rgb: var(--bd-violet-rgb);
             --bs-btn-active-color: var(--bs-btn-hover-color);
-            --bs-btn-active-bg: #5a23c8;
-            --bs-btn-active-border-color: #5a23c8;
+            --bs-btn-active-bg: #474646;
+            --bs-btn-active-border-color: #474646;
         }
 
         .bd-mode-toggle {
@@ -112,7 +116,7 @@
 
         @media (min-width: 768px) {
             .bd-placeholder-img-lg {
-            font-size: 3.5rem;
+                font-size: 3.5rem;
             }
         }
 
@@ -133,7 +137,7 @@
                         <a class="nav-link {% if request.resolver_match.view_name == 'home' %}active{% endif %}" href="{% url 'home' %}">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link">Classroom</a>
+                        <a class="nav-link {% if 'classroom' in request.resolver_match.view_name %}active{% endif %}" href="{% url 'classroom_home' %}">Classroom</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link">Student</a>

@@ -4,6 +4,7 @@ from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from classroom.models import Classroom
 
+
 # Modèle de la leçon
 class Lesson(models.Model):
     name = models.CharField(max_length=255)

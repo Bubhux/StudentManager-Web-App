@@ -24,6 +24,7 @@ from classroom.views import (
     delete_classroom_view
 )
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', home_view, name='home'),
