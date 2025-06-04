@@ -16,6 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.views.generic import RedirectView
 from home.views import home_view, student_management_view, classroom_management_view, quit_application_view
 from classroom.views import (
     classroom_home_view, display_classrooms_view, add_classroom_view,
@@ -26,8 +27,10 @@ from classroom.views import (
 
 
 urlpatterns = [
+    path('', RedirectView.as_view(url='/home/')),
+
     path('admin/', admin.site.urls),
-    path('', home_view, name='home'),
+    path('home/', home_view, name='home'),
     path('student-management/', student_management_view, name='student_management'),
     path('classroom-management/', classroom_management_view, name='classroom_management'),
     path('quit/', quit_application_view, name='quit_application'),
