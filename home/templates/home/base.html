@@ -75,7 +75,6 @@
 
         .btn-bd-primary {
             --bd-bg: #5d5d5d;
-
             --bs-btn-font-weight: 600;
             --bs-btn-color: var(--bs-white);
             --bs-btn-bg: var(--bd-bg);
@@ -90,7 +89,9 @@
         }
 
         .bd-mode-toggle {
-            z-index: 1500;
+            position: absolute;
+            right: 0.1rem;
+            bottom: -3rem;
         }
 
         .center-block {
@@ -115,6 +116,7 @@
         }
 
         @media (min-width: 768px) {
+
             .bd-placeholder-img-lg {
                 font-size: 3.5rem;
             }
@@ -178,7 +180,7 @@
                     </symbol>
                 </svg>
 
-                <div class="dropdown position-fixed bottom-0 end-0 bd-mode-toggle me-4 custom-mb">
+                <div class="dropdown bd-mode-toggle me-4 custom-mb">
                     <button class="btn btn-bd-primary py-2 dropdown-toggle d-flex align-items-center"
                             id="bd-theme"
                             type="button"
