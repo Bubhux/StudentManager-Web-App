@@ -105,6 +105,16 @@
             margin-bottom: 5rem !important;
         }
 
+        .centered {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .negative-mb {
+            margin-bottom: -3rem;
+        }
+
         body {
             display: flex;
             flex-direction: column;
@@ -157,7 +167,7 @@
         {% endblock %}
     </main>
 
-    <footer class="footer mt-auto pt-2 mb-2 w-100 text-light py-3">
+    <footer class="footer mt-auto pt-2 negative-mb w-100 text-light py-3">
         <div class="card card-sm mx-2">
             <div class="card-header">StudentManager</div>
             <div class="card-body">
@@ -216,6 +226,9 @@
                 </div>
             </div>
         </div>
+        <div class="centered">
+            <p class="mt-2 mb-3 text-body-secondary">&copy; 2023–2025</p>
+        </div>        
     </footer>
 </body>
 </html>
