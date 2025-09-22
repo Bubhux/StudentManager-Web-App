@@ -4,14 +4,12 @@
 {% block content %}
 
 <style>
-
   .btn-custom-hover:hover {
       color: #c7c7c7 !important;
   }
 </style>
 
 <body class="d-flex align-items-center py-4 bg-body-tertiary">
-
     <main class="container text-center">
         <h2 class="mb-4 mt-4">Gestion des classes</h2>
 
@@ -21,21 +19,38 @@
                     <div class="card mt-5">
                         <div class="card-body">
                             <h4 class="card-title">Création de classe</h4>
-                            {% if form.errors %}
-                                <div class="alert alert-danger">
-                                    {{ form.errors }}
-                                </div>
+                            
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <div class="alert alert-light text-{{ message.tags }}">
+                                        {{ message }}
+                                    </div>
+                                {% endfor %}
                             {% endif %}
+                            
                             <form method="post">
                                 {% csrf_token %}
+                                
                                 <div class="mb-3 text-start">
                                     <label for="id_classroom_name" class="form-label">Nom de la classe</label>
-                                    <input type="text" class="form-control" id="id_classroom_name" name="classroom_name" placeholder="Classroom name">
+                                    {{ form.classroom_name }}
+                                    {% if form.classroom_name.errors %}
+                                        <div class="text-danger">
+                                            {{ form.classroom_name.errors }}
+                                        </div>
+                                    {% endif %}
                                 </div>
+                                
                                 <div class="mb-3 text-start">
                                     <label for="id_number_of_places_available" class="form-label">Nombre de places disponible</label>
-                                    <input type="text" class="form-control" id="id_number_of_places_available" name="number_of_places_available" placeholder="Number of places available">
+                                    {{ form.number_of_places_available }}
+                                    {% if form.number_of_places_available.errors %}
+                                        <div class="text-danger">
+                                            {{ form.number_of_places_available.errors }}
+                                        </div>
+                                    {% endif %}
                                 </div>
+                                
                                 <button type="submit" class="btn btn-secondary btn-custom-hover">Créer</button>
                             </form>
                         </div>
@@ -46,7 +61,7 @@
     </main>
 
     <script src="/static/js/bootstrap.bundle.min.js"></script>
-  </body>
+</body>
 </html>
 
 {% endblock content %}
