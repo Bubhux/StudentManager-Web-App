@@ -1,5 +1,8 @@
 # classroom/views.py
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .forms import ClassroomForm
+from .models import Classroom
 
 
 def classroom_home_view(request):
@@ -9,7 +12,16 @@ def display_classrooms_view(request):
     return render(request, 'classroom/classroom.html')
 
 def add_classroom_view(request):
-    return render(request, 'classroom/add_classroom.html')
+    if request.method == 'POST':
+        form = ClassroomForm(request.POST)
+        if form.is_valid():
+            classroom = form.save()
+            messages.success(request, f"La classe {classroom.classroom_name} a été ajoutée avec succès!")
+            return redirect('add_classroom')
+    else:
+        form = ClassroomForm()
+    
+    return render(request, 'classroom/add_classroom.html', {'form': form})
 
 def update_classroom_info_view(request):
     return render(request, 'classroom/update_classroom.html')
