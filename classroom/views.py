@@ -18,6 +18,10 @@ def add_classroom_view(request):
             classroom = form.save()
             messages.success(request, f"La classe {classroom.classroom_name} a été ajoutée avec succès!")
             return redirect('add_classroom')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{error}")
     else:
         form = ClassroomForm()
     
