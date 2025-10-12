@@ -6,9 +6,14 @@ from django.core.exceptions import ValidationError
 class Classroom(models.Model):
     classroom_name = models.CharField(max_length=255)
     number_of_places_available = models.PositiveIntegerField(default=0)
-    
+
     def __str__(self):
         return f"Classe : {self.classroom_name}, Nombre d'étudiants : {self.students.count()}"
+
+    @property
+    def student_count(self):
+        """Retourne le nombre d'étudiants dans la classe"""
+        return self.students.count()
 
     def add_students_classroom(self, students):
         """
