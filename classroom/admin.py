@@ -5,6 +5,8 @@ from .models import Classroom
 
 class ClassroomAdmin(admin.ModelAdmin):
     list_display = ('classroom_name', 'number_of_places_available', 'student_count')
+    list_filter = ('classroom_name',)
+    search_fields = ('classroom_name',)
     readonly_fields = ('student_count',)
 
     def student_count(self, obj):
