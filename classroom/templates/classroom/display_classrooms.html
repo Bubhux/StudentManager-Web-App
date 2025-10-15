@@ -7,6 +7,12 @@
     .btn-custom-hover:hover {
         color: #c7c7c7 !important;
     }
+    .table-hover tbody tr:hover {
+        background-color: rgba(0, 0, 0, 0.075);
+    }
+    .card {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
 </style>
 
 <body class="d-flex align-items-center py-4 bg-body-tertiary">
@@ -15,62 +21,91 @@
 
         <div class="container mt-5">
             <div class="row justify-content-center">
-                <div class="col-md-8">
-                    <div class="card mt-5">
+                <div class="col-md-10">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            <h4 class="mb-0">Liste des classes triées par ordre alphabétique</h4>
+                        </div>
+                        
                         <div class="card-body">
-                            <h4 class="card-title">Création de classe</h4>
-
-                            {% if messages %}
-                            {% for message in messages %}
-                            {% if message.tags == 'success' %}
-                            <div class="alert alert-light text-Emphasis border-Emphasis">
-                                {% elif message.tags == 'error' %}
-                                <div class="alert alert-light text-danger border-danger">
-                                    {% else %}
-                                    <div class="alert alert-light text-{{ message.tags }} border-{{ message.tags }}">
-                                        {% endif %}
-                                        {{ message }}
-                                    </div>
-                                    {% endfor %}
-                                    {% endif %}
-
-                                    <form method="post">
-                                        {% csrf_token %}
-
-                                        <div class="mb-3 text-start">
-                                            <label for="id_classroom_name" class="form-label">Nom de la classe</label>
-                                            {{ form.classroom_name }}
-                                            {% if form.classroom_name.errors %}
-                                            <div class="text-danger">
-                                                {{ form.classroom_name.errors }}
-                                            </div>
-                                            {% endif %}
-                                        </div>
-
-                                        <div class="mb-3 text-start">
-                                            <label for="id_number_of_places_available" class="form-label">Nombre de
-                                                places disponible</label>
-                                            {{ form.number_of_places_available }}
-                                            {% if form.number_of_places_available.errors %}
-                                            <div class="text-danger">
-                                                {{ form.number_of_places_available.errors }}
-                                            </div>
-                                            {% endif %}
-                                        </div>
-
-                                        <button type="submit" class="btn btn-secondary btn-custom-hover">Créer</button>
-                                    </form>
-                                </div>
+                            {% if has_classrooms %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th scope="col">Nom de la classe</th>
+                                            <th scope="col">Places disponibles</th>
+                                            <th scope="col">Nombre d'étudiants</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for classroom in classrooms %}
+                                        <tr>
+                                            <td>{{ classroom.name }}</td>
+                                            <td>{{ classroom.places_available }}</td>
+                                            <td>{{ classroom.student_count }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
                             </div>
+
+                            {% if page_obj.paginator.num_pages > 1 %}
+                            <nav aria-label="Page navigation">
+                                <ul class="pagination justify-content-center">
+                                    {% if page_obj.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page=1&per_page={{ per_page }}" aria-label="First">
+                                            <span aria-hidden="true">&laquo;&laquo;</span>
+                                        </a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}&per_page={{ per_page }}" aria-label="Previous">
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                    
+                                    {% for num in page_obj.paginator.page_range %}
+                                        {% if page_obj.number == num %}
+                                        <li class="page-item active">
+                                            <span class="page-link">{{ num }}</span>
+                                        </li>
+                                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ num }}&per_page={{ per_page }}">{{ num }}</a>
+                                        </li>
+                                        {% endif %}
+                                    {% endfor %}
+                                    
+                                    {% if page_obj.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.next_page_number }}&per_page={{ per_page }}" aria-label="Next">
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&per_page={{ per_page }}" aria-label="Last">
+                                            <span aria-hidden="true">&raquo;&raquo;</span>
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                            {% endif %}
+                            {% else %}
+                            <div class="alert alert-info" role="alert">
+                                Il n'y a pas de classes à afficher.
+                            </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
     </main>
 
     <script src="/static/js/bootstrap.bundle.min.js"></script>
 </body>
-
-</html>
 
 {% endblock content %}
