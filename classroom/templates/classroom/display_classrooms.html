@@ -13,6 +13,24 @@
     .card {
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
+    .pagination .page-item.active .page-link {
+        background-color: #212529;
+        border-color: #212529;
+    }
+    .pagination .page-link {
+        color: #a2a2a2;
+    }
+    .per-page-selector {
+        width: auto;
+        display: inline-block;
+        margin-left: 15px;
+    }
+    .pagination-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+    }
 </style>
 
 <body class="d-flex align-items-center py-4 bg-body-tertiary">
@@ -23,10 +41,13 @@
             <div class="row justify-content-center">
                 <div class="col-md-10">
                     <div class="card">
-                        <div class="card-header bg-dark text-white">
-                            <h4 class="mb-0">Liste des classes triées par ordre alphabétique</h4>
-                        </div>
-                        
+                        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                            <h4 class="mb-0 flex-grow-1 text-center">Liste des classes triées par ordre alphabétique</h4>
+                            <span class="badge bg-light text-dark">
+                                Total : {{ page_obj.paginator.count }} classes
+                            </span>
+                        </div>                        
+
                         <div class="card-body">
                             {% if has_classrooms %}
                             <div class="table-responsive">
@@ -50,49 +71,56 @@
                                 </table>
                             </div>
 
-                            {% if page_obj.paginator.num_pages > 1 %}
-                            <nav aria-label="Page navigation">
-                                <ul class="pagination justify-content-center">
-                                    {% if page_obj.has_previous %}
-                                    <li class="page-item">
-                                        <a class="page-link" href="?page=1&per_page={{ per_page }}" aria-label="First">
-                                            <span aria-hidden="true">&laquo;&laquo;</span>
-                                        </a>
-                                    </li>
-                                    <li class="page-item">
-                                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}&per_page={{ per_page }}" aria-label="Previous">
-                                            <span aria-hidden="true">&laquo;</span>
-                                        </a>
-                                    </li>
-                                    {% endif %}
-                                    
-                                    {% for num in page_obj.paginator.page_range %}
-                                        {% if page_obj.number == num %}
-                                        <li class="page-item active">
-                                            <span class="page-link">{{ num }}</span>
-                                        </li>
-                                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <div class="pagination-container mt-4">
+                                <div>
+                                    <form method="GET" class="form-inline">
+                                        <label for="items_per_page" class="me-2">Afficher :</label>
+                                        <select name="items_per_page" id="items_per_page" class="form-select form-select-sm" onchange="this.form.submit()">
+                                            {% for option in per_page_options %}
+                                            <option value="{{ option }}" {% if items_per_page == option %}selected{% endif %}>{{ option }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <input type="hidden" name="page" value="1">
+                                    </form>
+                                </div>
+
+                                <nav>
+                                    <ul class="pagination mb-0">
+                                        {% if page_obj.has_previous %}
                                         <li class="page-item">
-                                            <a class="page-link" href="?page={{ num }}&per_page={{ per_page }}">{{ num }}</a>
+                                            <a class="page-link" href="?page=1&items_per_page={{ items_per_page }}" aria-label="First">
+                                                <span aria-hidden="true">&laquo;&laquo;</span>
+                                            </a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}&items_per_page={{ items_per_page }}" aria-label="Previous">
+                                                <span aria-hidden="true">&laquo;</span>
+                                            </a>
                                         </li>
                                         {% endif %}
-                                    {% endfor %}
-                                    
-                                    {% if page_obj.has_next %}
-                                    <li class="page-item">
-                                        <a class="page-link" href="?page={{ page_obj.next_page_number }}&per_page={{ per_page }}" aria-label="Next">
-                                            <span aria-hidden="true">&raquo;</span>
-                                        </a>
-                                    </li>
-                                    <li class="page-item">
-                                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&per_page={{ per_page }}" aria-label="Last">
-                                            <span aria-hidden="true">&raquo;&raquo;</span>
-                                        </a>
-                                    </li>
-                                    {% endif %}
-                                </ul>
-                            </nav>
-                            {% endif %}
+
+                                        <li class="page-item disabled">
+                                            <span class="page-link">
+                                                Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}
+                                            </span>
+                                        </li>
+
+                                        {% if page_obj.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.next_page_number }}&items_per_page={{ items_per_page }}" aria-label="Next">
+                                                <span aria-hidden="true">&raquo;</span>
+                                            </a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&items_per_page={{ items_per_page }}" aria-label="Last">
+                                                <span aria-hidden="true">&raquo;&raquo;</span>
+                                            </a>
+                                        </li>
+                                        {% endif %}
+                                    </ul>
+                                </nav>
+                            </div>
+
                             {% else %}
                             <div class="alert alert-info" role="alert">
                                 Il n'y a pas de classes à afficher.
