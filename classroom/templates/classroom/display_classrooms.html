@@ -4,6 +4,7 @@
 {% block content %}
 
 <style>
+    /* Styles existants conservés */
     .btn-custom-hover:hover {
         color: #c7c7c7 !important;
     }
@@ -13,13 +14,34 @@
     .card {
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
+    
+    /* Nouveaux styles pour la pagination */
+    .pagination .page-item .page-link {
+        color: #495057; /* Couleur du texte */
+        background-color: #f8f9fa; /* Fond des boutons inactifs */
+        border-color: #dee2e6; /* Couleur de la bordure */
+        transition: all 0.3s ease; /* Animation fluide */
+    }
+    
+    .pagination .page-item:hover .page-link {
+        background-color: #e9ecef; /* Fond au survol */
+        border-color: #adb5bd; /* Bordure au survol */
+        color: #212529; /* Texte au survol */
+    }
+    
     .pagination .page-item.active .page-link {
-        background-color: #212529;
-        border-color: #212529;
+        background-color: #212529; /* Fond du bouton actif */
+        border-color: #212529; /* Bordure du bouton actif */
+        color: white; /* Texte du bouton actif */
     }
-    .pagination .page-link {
-        color: #a2a2a2;
+    
+    .pagination .page-item.disabled .page-link {
+        background-color: #f8f9fa; /* Fond des boutons désactivés */
+        border-color: #dee2e6; /* Bordure des boutons désactivés */
+        color: #6c757d; /* Texte des boutons désactivés */
     }
+    
+    /* Styles existants conservés */
     .per-page-selector {
         width: auto;
         display: inline-block;
