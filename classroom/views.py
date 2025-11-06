@@ -11,38 +11,41 @@ def classroom_home_view(request):
 
 
 def display_classrooms_view(request):
-    # Récupérer le nombre d'éléments par page depuis la requête GET (5 par défaut)
-    per_page = int(request.GET.get('per_page', 5))
-    
-    # Récupérer toutes les classes triées
+    # Récupére le nombre d'éléments par page (avec validation)
+    try:
+        items_per_page = int(request.GET.get('items_per_page', 5))
+        # Limite les choix possibles aux valeurs prédéfinies
+        if items_per_page not in [5, 10, 50, 100]:
+            items_per_page = 5
+    except (ValueError, TypeError):
+        items_per_page = 5
+
+    # Optimisation: Utilise select_related/prefetch_related si nécessaire
     classrooms = Classroom.objects.all().order_by('classroom_name')
-    
-    # Créer le paginator
-    paginator = Paginator(classrooms, per_page)
-    
-    # Récupérer le numéro de page depuis la requête GET
+
+    # Pagination directement sur le QuerySet (plus efficace)
+    paginator = Paginator(classrooms, items_per_page)
     page_number = request.GET.get('page')
-    
-    # Obtenir la page courante
     page_obj = paginator.get_page(page_number)
-    
-    # Préparer les données pour le template
-    classrooms_data = []
-    for classroom in page_obj:
-        classrooms_data.append({
+
+    # Prépare les données pour le template
+    classrooms_data = [
+        {
             'name': classroom.classroom_name,
             'places_available': classroom.number_of_places_available,
             'student_count': classroom.student_count
-        })
-    
+        }
+        for classroom in page_obj.object_list  # Utiliser object_list pour éviter double requête
+    ]
+
     context = {
-        'classrooms': classrooms_data,
-        'has_classrooms': classrooms.exists(),
         'page_obj': page_obj,
-        'per_page': per_page,
-        'per_page_options': [5, 10, 50, 100]  # Options pour le dropdown
+        'classrooms': classrooms_data,          # Passe les données préparées
+        'has_classrooms': classrooms.exists(),  # Plus efficace que len()
+        'items_per_page': items_per_page,
+        'per_page_options': [5, 10, 50, 100]    # Pour garder une seule source de vérité
     }
-    
+
     return render(request, 'classroom/display_classrooms.html', context)
 
 def add_classroom_view(request):
