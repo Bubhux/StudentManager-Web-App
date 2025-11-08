@@ -4,7 +4,6 @@
 {% block content %}
 
 <style>
-    /* Styles existants conservés */
     .btn-custom-hover:hover {
         color: #c7c7c7 !important;
     }
@@ -14,34 +13,34 @@
     .card {
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
-    
-    /* Nouveaux styles pour la pagination */
+
     .pagination .page-item .page-link {
-        color: #495057; /* Couleur du texte */
-        background-color: #f8f9fa; /* Fond des boutons inactifs */
-        border-color: #dee2e6; /* Couleur de la bordure */
-        transition: all 0.3s ease; /* Animation fluide */
+        color: #252525;            /* Couleur du texte */
+        background-color: #c3c3c3; /* Fond des boutons inactifs */
+        border-color: #6f6f6f;     /* Couleur de la bordure */
+        transition: all 0.3s ease;   /* Animation fluide */
+        outline: none !important;    /* Désactive le contour bleu */
+        box-shadow: none !important; /* Supprime l'ombre/glow du focus */
     }
-    
+
     .pagination .page-item:hover .page-link {
         background-color: #e9ecef; /* Fond au survol */
-        border-color: #adb5bd; /* Bordure au survol */
-        color: #212529; /* Texte au survol */
+        border-color: #404040;     /* Bordure au survol */
+        color: #212529;            /* Texte au survol */
     }
-    
+
     .pagination .page-item.active .page-link {
         background-color: #212529; /* Fond du bouton actif */
-        border-color: #212529; /* Bordure du bouton actif */
-        color: white; /* Texte du bouton actif */
+        border-color: #212529;     /* Bordure du bouton actif */
+        color: white;              /* Texte du bouton actif */
     }
-    
+
     .pagination .page-item.disabled .page-link {
-        background-color: #f8f9fa; /* Fond des boutons désactivés */
-        border-color: #dee2e6; /* Bordure des boutons désactivés */
-        color: #6c757d; /* Texte des boutons désactivés */
+        background-color: #c3c3c3; /* Fond des boutons désactivés */
+        border-color: #6f6f6f;     /* Bordure des boutons désactivés */
+        color: #252525;            /* Texte des boutons désactivés */
     }
-    
-    /* Styles existants conservés */
+
     .per-page-selector {
         width: auto;
         display: inline-block;
