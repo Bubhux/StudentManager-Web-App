@@ -9,7 +9,6 @@ from .models import Classroom
 def classroom_home_view(request):
     return render(request, 'classroom/classroom.html')
 
-
 def display_classrooms_view(request):
     # Récupére le nombre d'éléments par page (avec validation)
     try:
