@@ -12,7 +12,9 @@ class Classroom(models.Model):
 
     @property
     def student_count(self):
-        """Retourne le nombre d'étudiants dans la classe"""
+        """
+        Retourne le nombre d'étudiants dans la classe
+        """
         return self.students.count()
 
     def add_students_classroom(self, students):
