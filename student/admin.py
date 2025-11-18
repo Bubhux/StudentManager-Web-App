@@ -5,6 +5,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from .models import Student, Lesson, StudentLesson
 
+
 # Formulaire personnalisé pour la création d'un étudiant sans username/password obligatoire
 class StudentCreationForm(UserCreationForm):
     class Meta:
@@ -25,7 +26,7 @@ class StudentCreationForm(UserCreationForm):
             user.save()
         return user
 
-# Inline pour les notes
+
 class StudentLessonInline(admin.TabularInline):
     model = StudentLesson
     extra = 1
@@ -33,7 +34,8 @@ class StudentLessonInline(admin.TabularInline):
     verbose_name = "Lesson associée"
     verbose_name_plural = "Lessons associées avec notes"
 
-# Admin personnalisé pour Student
+
+
 class StudentAdmin(UserAdmin):
     add_form = StudentCreationForm
     add_fieldsets = (
@@ -42,19 +44,25 @@ class StudentAdmin(UserAdmin):
             'fields': ('first_name', 'last_name', 'email', 'classroom'),
         }),
     )
-    list_display = ('email', 'first_name', 'last_name', 'classroom')
+    list_display = ('first_name', 'last_name', 'classroom', 'get_lessons_count', 'email')
     list_filter = ('classroom', 'is_staff', 'is_superuser')
     search_fields = ('first_name', 'last_name', 'email')
     ordering = ('email',)
-    
-    fieldsets = (
-        (None, {'fields': ('email',)}),
+
+    fieldsets = ( 
         ('Informations personnelles', {'fields': ('first_name', 'last_name')}),
-        ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
+        (None, {'fields': ('email',)}),
         ('Informations importantes', {'fields': ('classroom', 'last_login', 'date_joined')}),
+        ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
     )
-    
+
     inlines = [StudentLessonInline]
+
+    # Méthode pour compter les lessons
+    def get_lessons_count(self, obj):
+        return obj.studentlesson_set.count()                   # Compte les StudentLesson liées
+    get_lessons_count.short_description = "Nombre de lessons"  # Nom de la colonne
+
 
 # Enregistrement des modèles
 admin.site.register(Student, StudentAdmin)
