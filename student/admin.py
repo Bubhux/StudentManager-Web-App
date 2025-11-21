@@ -3,6 +3,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
+from django.db.models import Q
 from .models import Student, Lesson, StudentLesson
 
 
@@ -35,7 +36,6 @@ class StudentLessonInline(admin.TabularInline):
     verbose_name_plural = "Lessons associées avec notes"
 
 
-
 class StudentAdmin(UserAdmin):
     add_form = StudentCreationForm
     add_fieldsets = (
@@ -49,7 +49,7 @@ class StudentAdmin(UserAdmin):
     search_fields = ('first_name', 'last_name', 'email')
     ordering = ('email',)
 
-    fieldsets = ( 
+    fieldsets = (
         ('Informations personnelles', {'fields': ('first_name', 'last_name')}),
         (None, {'fields': ('email',)}),
         ('Informations importantes', {'fields': ('classroom', 'last_login', 'date_joined')}),
@@ -61,7 +61,22 @@ class StudentAdmin(UserAdmin):
     # Méthode pour compter les lessons
     def get_lessons_count(self, obj):
         return obj.studentlesson_set.count()                   # Compte les StudentLesson liées
+
     get_lessons_count.short_description = "Nombre de lessons"  # Nom de la colonne
+
+    def get_search_results(self, request, queryset, search_term):
+        queryset, use_distinct = super().get_search_results(request, queryset, search_term)
+
+        # Gestion des recherches combinées "Prénom Nom" ou "Nom Prénom"
+        if ' ' in search_term:
+            parts = search_term.split()
+            if len(parts) >= 2:
+                # Recherche "Prénom Nom" OU "Nom Prénom"
+                q_combined = (Q(first_name__icontains=parts[0]) & Q(last_name__icontains=parts[1])) | \
+                             (Q(first_name__icontains=parts[1]) & Q(last_name__icontains=parts[0]))
+                queryset = queryset | self.model.objects.filter(q_combined)
+
+        return queryset, use_distinct
 
 
 # Enregistrement des modèles
