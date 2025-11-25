@@ -73,7 +73,7 @@ def delete_students_from_classroom_view(request):
     return render(request, 'classroom/delete_students.html')
 
 def calculate_classroom_average_view(request):
-    return render(request, 'classroom/calculate_average.html')
+    return render(request, 'classroom/calculate_classroom_average.html')
 
 def delete_classroom_view(request):
     return render(request, 'classroom/delete_classroom.html')
