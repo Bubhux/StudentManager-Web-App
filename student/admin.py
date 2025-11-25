@@ -45,7 +45,7 @@ class StudentAdmin(UserAdmin):
         }),
     )
     list_display = ('first_name', 'last_name', 'classroom', 'get_lessons_count', 'email')
-    list_filter = ('classroom', 'is_staff', 'is_superuser')
+    list_filter = ('classroom',)
     search_fields = ('first_name', 'last_name', 'email')
     ordering = ('email',)
 

@@ -1,0 +1,32 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style>
+
+  .btn-custom-hover:hover {
+      color: #c7c7c7 !important;
+  }
+</style>
+
+<body class="d-flex align-items-center py-4 bg-body-tertiary">
+
+    <main class="container text-center">
+        <h2 class="mb-4 mt-4">Gestion des étudiants</h2>
+
+        <a href="{% url 'display_students' %}" class="btn btn-secondary btn-lg mb-3 d-block w-50 mx-auto btn-custom-hover">Afficher les étudiants</a>
+        <a href="{% url 'add_student' %}" class="btn btn-secondary btn-lg mb-3 d-block w-50 mx-auto btn-custom-hover">Créer un étudiant</a>
+        <a href="{% url 'add_subject_to_student' %}" class="btn btn-secondary btn-lg mb-3 d-block w-50 mx-auto btn-custom-hover">Ajouter une matière à un étudiant</a>
+        <a href="{% url 'update_student_grades' %}" class="btn btn-secondary btn-lg mb-3 d-block w-50 mx-auto btn-custom-hover">Modifier les notes d'un étudiant</a>
+        <a href="{% url 'update_student_info' %}" class="btn btn-secondary btn-lg mb-3 d-block w-50 mx-auto btn-custom-hover">Modifier les informations d'un étudiant</a>
+        <a href="{% url 'calculate_student_average' %}" class="btn btn-secondary btn-lg mb-3 d-block w-50 mx-auto btn-custom-hover">Calculer la moyenne d'un étudiant</a>
+        <a href="{% url 'delete_student' %}" class="btn btn-secondary btn-lg mb-3 d-block w-50 mx-auto btn-custom-hover">Supprimer un étudiant</a>
+        <a href="{% url 'home' %}" class="btn btn-secondary btn-lg mb-3 d-block w-50 mx-auto btn-custom-hover">Retour au menu précédent</a>
+    </main>
+
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
+
+{% endblock content %}
