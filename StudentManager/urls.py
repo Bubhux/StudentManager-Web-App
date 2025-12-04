@@ -25,6 +25,13 @@ from classroom.views import (
     delete_classroom_view
 )
 
+from student.views import (
+    student_home_view, display_students_view, add_student_view,
+    add_subject_to_student_view, update_student_grades_view,
+    update_student_info_view, calculate_student_average_view,
+    delete_student_view
+)
+
 
 urlpatterns = [
     path('', RedirectView.as_view(url='/home/')),
@@ -42,6 +49,6 @@ urlpatterns = [
     path('classroom/update/', update_classroom_info_view, name='update_classroom_info'),
     path('classroom/add-students/', add_students_to_classroom_view, name='add_students_to_classroom'),
     path('classroom/delete-students/', delete_students_from_classroom_view, name='delete_students_from_classroom'),
-    path('classroom/calculate-average/', calculate_classroom_average_view, name='calculate_classroom_average'),
-    path('classroom/delete/', delete_classroom_view, name='delete_classroom'),
+    path('classroom/calculate-classroom-average/', calculate_classroom_average_view, name='calculate_classroom_average'),
+    path('classroom/delete-classroom/', delete_classroom_view, name='delete_classroom'),
 ]
