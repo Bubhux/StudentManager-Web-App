@@ -51,4 +51,14 @@ urlpatterns = [
     path('classroom/delete-students/', delete_students_from_classroom_view, name='delete_students_from_classroom'),
     path('classroom/calculate-classroom-average/', calculate_classroom_average_view, name='calculate_classroom_average'),
     path('classroom/delete-classroom/', delete_classroom_view, name='delete_classroom'),
+
+    # Routes pour l'application student
+    path('student/', student_home_view, name='student_home'),
+    path('student/display/', display_students_view, name='display_students'),
+    path('student/add/', add_student_view, name='add_student'),
+    path('student/add-subject-to-student/', add_subject_to_student_view, name='add_subject_to_student'),
+    path('student/update-student-grades/', update_student_grades_view, name='update_student_grades'),
+    path('student/update-student-info/', update_student_info_view, name='update_student_info'),
+    path('student/calculate-student-average/', calculate_student_average_view, name='calculate_student_average'),
+    path('student/delete-student/', delete_student_view, name='delete_student'),
 ]
