@@ -1,0 +1,115 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style>
+    .btn-custom-hover:hover {
+        color: #c7c7c7 !important;
+    }
+</style>
+
+<body class="d-flex align-items-center py-4 bg-body-tertiary">
+    <main class="container text-center">
+        <h2 class="mb-4 mt-4">Gestion des étudiants</h2>
+
+        <div class="container mt-5">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card mt-5">
+                        <div class="card-body">
+                            <h4 class="card-title">Création d'étudiant</h4>
+
+                            {% if messages %}
+                            {% for message in messages %}
+                            {% if message.tags == 'success' %}
+                            <div class="alert alert-light text-Emphasis border-Emphasis">
+                                {% elif message.tags == 'error' %}
+                                <div class="alert alert-light text-danger border-danger">
+                                    {% else %}
+                                    <div class="alert alert-light text-{{ message.tags }} border-{{ message.tags }}">
+                                        {% endif %}
+                                        {{ message }}
+                                    </div>
+                                    {% endfor %}
+                                    {% endif %}
+
+                                    <form method="post">
+                                        {% csrf_token %}
+
+                                        <div class="mb-3 text-start">
+                                            <label for="id_first_name" class="form-label">Prénom de l'étudiant</label>
+                                            {{ form.first_name }}
+                                            {% if form.first_name.errors %}
+                                            <div class="text-danger">
+                                                {{ form.first_name.errors }}
+                                            </div>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="mb-3 text-start">
+                                            <label for="id_last_name" class="form-label">Nom de l'étudiant</label>
+                                            {{ form.last_name }}
+                                            {% if form.last_name.errors %}
+                                            <div class="text-danger">
+                                                {{ form.last_name.errors }}
+                                            </div>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="mb-3 text-start">
+                                            <label for="id_classroom_name" class="form-label">Ajouter l'étudiant à une classe</label>
+                                            {{ form.classroom_name }}
+                                            {% if form.classroom_name.errors %}
+                                            <div class="text-danger">
+                                                {{ form.classroom_name.errors }}
+                                            </div>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="mb-3 text-start">
+                                            <label for="id_number_lessons" class="form-label">Nombre de matières de cet étudiant</label>
+                                            {{ form.number_lessons }}
+                                            {% if form.number_lessons.errors %}
+                                            <div class="text-danger">
+                                                {{ form.number_lessons.errors }}
+                                            </div>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="mb-3 text-start">
+                                            <label for="id_lesson_name" class="form-label">Nom de la matière</label>
+                                            {{ form.lesson_name }}
+                                            {% if form.lesson_name.errors %}
+                                            <div class="text-danger">
+                                                {{ form.lesson_name.errors }}
+                                            </div>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="mb-3 text-start">
+                                            <label for="id_grade" class="form-label">Note pour la matière</label>
+                                            {{ form.grade }}
+                                            {% if form.grade.errors %}
+                                            <div class="text-danger">
+                                                {{ form.grade.errors }}
+                                            </div>
+                                            {% endif %}
+                                        </div>
+
+                                        <button type="submit" class="btn btn-secondary btn-custom-hover">Créer</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </main>
+
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
+
+{% endblock content %}
