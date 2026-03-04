@@ -1,5 +1,7 @@
 # student/views.py
 from django.shortcuts import render, redirect
+from django.contrib import messages
+from .forms import StudentForm, LessonFormSet
 from .models import Student
 
 
@@ -10,7 +12,25 @@ def display_students_view(request):
     return render(request, 'student/display_students.html')
 
 def add_student_view(request):
-    return render(request, 'student/add_student.html')
+    if request.method == 'POST':
+        form = StudentForm(request.POST)
+        lesson_formset = LessonFormSet(request.POST, prefix='lessons')
+
+        if form.is_valid() and lesson_formset.is_valid():
+            try:
+                student = form.save()
+                messages.success(request, "L'étudiant a été créé avec succès!")
+                return redirect('add_student')
+            except Exception as e:
+                messages.error(request, f"Erreur lors de la création: {str(e)}")
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field}: {error}")
+    else:
+        form = StudentForm()
+
+    return render(request, 'student/add_student.html', {'form': form})
 
 def add_subject_to_student_view(request):
     return render(request, 'student/add_subject_to_student.html')
