@@ -5,6 +5,7 @@ from .models import Student, Lesson, StudentLesson
 from classroom.models import Classroom
 from django.forms import formset_factory
 
+
 class LessonForm(forms.Form):
     name = forms.CharField(
         label="Nom de la matière",
@@ -26,9 +27,13 @@ class LessonForm(forms.Form):
         })
     )
 
+
 LessonFormSet = formset_factory(LessonForm, extra=1)
 
+
 class StudentForm(forms.ModelForm):
+    email = forms.EmailField(required=False)
+
     number_lessons = forms.IntegerField(
         label="Nombre de matières",
         min_value=0,
@@ -51,7 +56,7 @@ class StudentForm(forms.ModelForm):
 
     class Meta:
         model = Student
-        fields = ['first_name', 'last_name', 'classroom']
+        fields = ['first_name', 'last_name', 'email', 'classroom']
         widgets = {
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
