@@ -32,7 +32,11 @@ LessonFormSet = formset_factory(LessonForm, extra=1)
 
 
 class StudentForm(forms.ModelForm):
-    email = forms.EmailField(required=False)
+    email = forms.EmailField(
+        label="Email de l'étudiant",
+        required=False,
+        widget=forms.EmailInput(attrs={'class': 'form-control'})
+    )
 
     number_lessons = forms.IntegerField(
         label="Nombre de matières",
