@@ -12,6 +12,7 @@ class Lesson(models.Model):
     def __str__(self):
         return self.name
 
+
 # Modèle intermédiaire entre Student et Lesson, qui stocke également la note
 class StudentLesson(models.Model):
     student = models.ForeignKey('Student', on_delete=models.CASCADE)
@@ -24,8 +25,15 @@ class StudentLesson(models.Model):
     def __str__(self):
         return f"{self.student} - {self.lesson} : {self.grade}"
 
+
 # Modèle Student
 class Student(AbstractUser):
+    username = None
+    email = models.EmailField('email address', unique=True)
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
+
     classroom = models.ForeignKey(
         Classroom,
         on_delete=models.SET_NULL,
