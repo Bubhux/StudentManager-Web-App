@@ -71,6 +71,10 @@
                                     {% endif %}
                                 </div>
 
+                                <div id="lessonsManagementForm" style="display:none;">
+                                    {{ lesson_formset.management_form }}
+                                </div>
+
                                 <!-- Section dynamique pour les matières -->
                                 <div id="lessonsContainer">
                                     <!-- Les champs des matières seront ajoutés ici par JavaScript -->
@@ -89,7 +93,14 @@
     <script>
         function updateLessonFields() {
             const container = document.getElementById('lessonsContainer');
+            const managementForm = document.getElementById('lessonsManagementForm');
             const numLessons = document.getElementById('id_number_lessons').value || 0;
+
+            // Mettre à jour le champ TOTAL_FORMS dans le management form
+            const totalForms = document.querySelector('#id_lessons-TOTAL_FORMS');
+            if (totalForms) {
+                totalForms.value = numLessons;
+            }
 
             container.innerHTML = '';  // Efface les champs existants
 
@@ -107,6 +118,7 @@
                         <label class="form-label">Note</label>
                         <input type="number" name="lessons-${i}-grade" class="form-control" step="0.01" min="0" max="20">
                     </div>
+                    <input type="hidden" name="lessons-${i}-id" id="id_lessons-${i}-id">  <!-- Champ caché requis -->
                 `;
 
                 container.appendChild(lessonDiv);
