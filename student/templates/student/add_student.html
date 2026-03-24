@@ -55,6 +55,14 @@
                                 </div>
 
                                 <div class="mb-3 text-start">
+                                    <label for="id_email" class="form-label">Email de l'étudiant</label>
+                                    {{ form.email }}
+                                    {% if form.email.errors %}
+                                    <div class="text-danger">{{ form.email.errors }}</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="mb-3 text-start">
                                     <label for="id_classroom_name" class="form-label">Ajouter l'étudiant à une
                                         classe</label>
                                     {{ form.classroom_name }}
