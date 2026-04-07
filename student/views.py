@@ -20,6 +20,10 @@ def add_student_view(request):
             try:
                 student = form.save(commit=False)
 
+                # Si aucun email n'est fourni, définir un email vide
+                if not form.cleaned_data.get('email'):
+                    student.email = None
+
                 # Valide le formset seulement si des matières sont fournies
                 if 'lessons-0-name' in request.POST:  # Vérifie si au moins une matière est soumise
                     if not lesson_formset.is_valid():
