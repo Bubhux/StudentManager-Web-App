@@ -29,7 +29,7 @@ class StudentLesson(models.Model):
 # Modèle Student
 class Student(AbstractUser):
     username = None
-    email = models.EmailField('email address', unique=True)
+    email = models.EmailField('email address', unique=True, null=True, blank=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
