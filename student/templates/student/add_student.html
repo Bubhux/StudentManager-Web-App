@@ -2,6 +2,7 @@
 {% load static %}
 
 {% block content %}
+
 <style>
     .btn-custom-hover:hover {
         color: #c7c7c7 !important;
@@ -27,69 +28,75 @@
 
                             {% if messages %}
                             {% for message in messages %}
-                            <div
-                                class="alert alert-light text-{% if message.tags == 'success' %}Emphasis border-Emphasis{% elif message.tags == 'error' %}danger border-danger{% else %}{{ message.tags }} border-{{ message.tags }}{% endif %}">
-                                {{ message }}
+                            {% if message.tags == 'success' %}
+                            <div class="alert alert-light text-Emphasis border-Emphasis">
+                                {% elif message.tags == 'error' %}
+                                <div class="alert alert-light text-danger border-danger">
+                                    {% else %}
+                                    <div class="alert alert-light text-{{ message.tags }} border-{{ message.tags }}">
+                                        {% endif %}
+                                        {{ message }}
+                                    </div>
+                                    {% endfor %}
+                                    {% endif %}
+
+                                    <form method="post" id="studentForm">
+                                        {% csrf_token %}
+
+                                        <!-- Champs de base de l'étudiant -->
+                                        <div class="mb-3 text-start">
+                                            <label for="id_first_name" class="form-label">Prénom de l'étudiant</label>
+                                            {{ form.first_name }}
+                                            {% if form.first_name.errors %}
+                                            <div class="text-danger">{{ form.first_name.errors }}</div>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="mb-3 text-start">
+                                            <label for="id_last_name" class="form-label">Nom de l'étudiant</label>
+                                            {{ form.last_name }}
+                                            {% if form.last_name.errors %}
+                                            <div class="text-danger">{{ form.last_name.errors }}</div>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="mb-3 text-start">
+                                            <label for="id_email" class="form-label">Email de l'étudiant</label>
+                                            {{ form.email }}
+                                            {% if form.email.errors %}
+                                            <div class="text-danger">{{ form.email.errors }}</div>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="mb-3 text-start">
+                                            <label for="id_classroom_name" class="form-label">Ajouter l'étudiant à une classe</label>
+                                            {{ form.classroom_name }}
+                                            {% if form.classroom_name.errors %}
+                                            <div class="text-danger">{{ form.classroom_name.errors }}</div>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="mb-3 text-start">
+                                            <label for="id_number_lessons" class="form-label">Nombre de matières</label>
+                                            {{ form.number_lessons }}
+                                            {% if form.number_lessons.errors %}
+                                            <div class="text-danger">{{ form.number_lessons.errors }}</div>
+                                            {% endif %}
+                                        </div>
+
+                                        <div id="lessonsManagementForm" style="display:none;">
+                                            {{ lesson_formset.management_form }}
+                                        </div>
+
+                                        <!-- Section dynamique pour les matières -->
+                                        <div id="lessonsContainer">
+                                            <!-- Les champs des matières seront ajoutés ici par JavaScript -->
+                                        </div>
+
+                                        <button type="submit" class="btn btn-secondary btn-custom-hover">Créer</button>
+                                    </form>
+                                </div>
                             </div>
-                            {% endfor %}
-                            {% endif %}
-
-                            <form method="post" id="studentForm">
-                                {% csrf_token %}
-
-                                <!-- Champs de base de l'étudiant -->
-                                <div class="mb-3 text-start">
-                                    <label for="id_first_name" class="form-label">Prénom de l'étudiant</label>
-                                    {{ form.first_name }}
-                                    {% if form.first_name.errors %}
-                                    <div class="text-danger">{{ form.first_name.errors }}</div>
-                                    {% endif %}
-                                </div>
-
-                                <div class="mb-3 text-start">
-                                    <label for="id_last_name" class="form-label">Nom de l'étudiant</label>
-                                    {{ form.last_name }}
-                                    {% if form.last_name.errors %}
-                                    <div class="text-danger">{{ form.last_name.errors }}</div>
-                                    {% endif %}
-                                </div>
-
-                                <div class="mb-3 text-start">
-                                    <label for="id_email" class="form-label">Email de l'étudiant</label>
-                                    {{ form.email }}
-                                    {% if form.email.errors %}
-                                    <div class="text-danger">{{ form.email.errors }}</div>
-                                    {% endif %}
-                                </div>
-
-                                <div class="mb-3 text-start">
-                                    <label for="id_classroom_name" class="form-label">Ajouter l'étudiant à une
-                                        classe</label>
-                                    {{ form.classroom_name }}
-                                    {% if form.classroom_name.errors %}
-                                    <div class="text-danger">{{ form.classroom_name.errors }}</div>
-                                    {% endif %}
-                                </div>
-
-                                <div class="mb-3 text-start">
-                                    <label for="id_number_lessons" class="form-label">Nombre de matières</label>
-                                    {{ form.number_lessons }}
-                                    {% if form.number_lessons.errors %}
-                                    <div class="text-danger">{{ form.number_lessons.errors }}</div>
-                                    {% endif %}
-                                </div>
-
-                                <div id="lessonsManagementForm" style="display:none;">
-                                    {{ lesson_formset.management_form }}
-                                </div>
-
-                                <!-- Section dynamique pour les matières -->
-                                <div id="lessonsContainer">
-                                    <!-- Les champs des matières seront ajoutés ici par JavaScript -->
-                                </div>
-
-                                <button type="submit" class="btn btn-secondary btn-custom-hover">Créer</button>
-                            </form>
                         </div>
                     </div>
                 </div>
@@ -141,5 +148,4 @@
     </script>
 </body>
 
-</html>
 {% endblock content %}
