@@ -1,0 +1,164 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style>
+    .btn-custom-hover:hover {
+        color: #c7c7c7 !important;
+    }
+    .table-hover tbody tr:hover {
+        background-color: rgba(0, 0, 0, 0.075);
+    }
+    .card {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .pagination .page-item .page-link {
+        color: #252525;            /* Couleur du texte */
+        background-color: #c3c3c3; /* Fond des boutons inactifs */
+        border-color: #6f6f6f;     /* Couleur de la bordure */
+        transition: all 0.3s ease;   /* Animation fluide */
+        outline: none !important;    /* Désactive le contour bleu */
+        box-shadow: none !important; /* Supprime l'ombre/glow du focus */
+    }
+
+    .pagination .page-item:hover .page-link {
+        background-color: #e9ecef; /* Fond au survol */
+        border-color: #404040;     /* Bordure au survol */
+        color: #212529;            /* Texte au survol */
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #212529; /* Fond du bouton actif */
+        border-color: #212529;     /* Bordure du bouton actif */
+        color: white;              /* Texte du bouton actif */
+    }
+
+    .pagination .page-item.disabled .page-link {
+        background-color: #c3c3c3; /* Fond des boutons désactivés */
+        border-color: #6f6f6f;     /* Bordure des boutons désactivés */
+        color: #252525;            /* Texte des boutons désactivés */
+    }
+
+    .per-page-selector {
+        width: auto;
+        display: inline-block;
+        margin-left: 15px;
+    }
+    .pagination-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+</style>
+
+<body class="d-flex align-items-center py-4 bg-body-tertiary">
+    <main class="container text-center">
+        <h2 class="mb-4 mt-4">Étudiants disponibles</h2>
+
+        <div class="container mt-5">
+            <div class="row justify-content-center">
+                <div class="col-md-10">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                            <h4 class="mb-0 flex-grow-1 text-center">Liste d'étudiants triées par ordre alphabétique</h4>
+                            <span class="badge bg-light text-dark">
+                                Total : {{ page_obj.paginator.count }} étudiants
+                            </span>
+                        </div>                        
+
+                        <div class="card-body">
+                            {% if has_students %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th scope="col">Prénom de l'étudiant</th>
+                                            <th scope="col">Nom de l'étudiant</th>
+                                            <th scope="col">Classes de l'étudiant</th>
+                                            <th scope="col">Nombre de leçons</th>
+                                            <th scope="col">Email</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for student in students %}
+                                        <tr>
+                                            <td>{{ student.first_name }}</td>
+                                            <td>{{ student.last_name }}</td>
+                                            <td>{{ student.classroom }}</td>
+                                            <td>{{ student.lesson }}</td>
+                                            <td>{{ student.email }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="pagination-container mt-4">
+                                <div>
+                                    <form method="GET" class="form-inline">
+                                        <label for="items_per_page" class="me-2">Afficher :</label>
+                                        <select name="items_per_page" id="items_per_page" class="form-select form-select-sm" onchange="this.form.submit()">
+                                            {% for option in per_page_options %}
+                                            <option value="{{ option }}" {% if items_per_page == option %}selected{% endif %}>{{ option }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <input type="hidden" name="page" value="1">
+                                    </form>
+                                </div>
+
+                                <nav>
+                                    <ul class="pagination mb-0">
+                                        {% if page_obj.has_previous %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page=1&items_per_page={{ items_per_page }}" aria-label="First">
+                                                <span aria-hidden="true">&laquo;&laquo;</span>
+                                            </a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}&items_per_page={{ items_per_page }}" aria-label="Previous">
+                                                <span aria-hidden="true">&laquo;</span>
+                                            </a>
+                                        </li>
+                                        {% endif %}
+
+                                        <li class="page-item disabled">
+                                            <span class="page-link">
+                                                Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}
+                                            </span>
+                                        </li>
+
+                                        {% if page_obj.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.next_page_number }}&items_per_page={{ items_per_page }}" aria-label="Next">
+                                                <span aria-hidden="true">&raquo;</span>
+                                            </a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&items_per_page={{ items_per_page }}" aria-label="Last">
+                                                <span aria-hidden="true">&raquo;&raquo;</span>
+                                            </a>
+                                        </li>
+                                        {% endif %}
+                                    </ul>
+                                </nav>
+                            </div>
+
+                            {% else %}
+                            <div class="alert alert-info" role="alert">
+                                Il n'y a pas d'étudiants à afficher.
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
+</body>
+
+{% endblock content %}
