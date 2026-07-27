@@ -87,8 +87,14 @@
                                         <tr>
                                             <td>{{ student.first_name }}</td>
                                             <td>{{ student.last_name }}</td>
-                                            <td>{{ student.classroom }}</td>
-                                            <td>{{ student.lesson }}</td>
+                                            <td>
+                                                {% if student.classroom %}
+                                                    {{ student.classroom.name }}
+                                                {% else %}
+                                                    -
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ student.lessons.count }}</td>
                                             <td>{{ student.email }}</td>
                                         </tr>
                                         {% endfor %}
