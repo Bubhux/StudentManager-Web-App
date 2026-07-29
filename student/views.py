@@ -10,41 +10,30 @@ def student_home_view(request):
     return render(request, 'student/student.html')
 
 def display_students_view(request):
-    # Récupére le nombre d'éléments par page (avec validation)
+    # Gestion des éléments par page
     try:
         items_per_page = int(request.GET.get('items_per_page', 5))
-        # Limite les choix possibles aux valeurs prédéfinies
         if items_per_page not in [5, 10, 50, 100]:
             items_per_page = 5
     except (ValueError, TypeError):
         items_per_page = 5
 
-    # Optimisation: Utilise select_related/prefetch_related si nécessaire
-    classrooms = Student.objects.all().order_by('classroom_name')
+    # Récupération des étudiants avec optimisation
+    students = Student.objects.all().order_by('last_name', 'first_name') \
+        .select_related('classroom') \
+        .prefetch_related('lessons')
 
-    # Pagination directement sur le QuerySet (plus efficace)
-    paginator = Paginator(classrooms, items_per_page)
+    # Pagination
+    paginator = Paginator(students, items_per_page)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    # Prépare les données pour le template
-    students_data = [
-        {
-            'first_name': student.first_name,
-            'last_name': student.last_name,
-            'classroom': student.classroom,
-            'lesson': student.lesson,
-            'email': student.email,
-        }
-        for student in page_obj.object_list  # Utiliser object_list pour éviter double requête
-    ]
-
     context = {
         'page_obj': page_obj,
-        'students': students_data,            # Passe les données préparées
-        'has_students': students.exists(),    # Plus efficace que len()
+        'students': page_obj.object_list,
+        'has_students': page_obj.object_list.exists(),
         'items_per_page': items_per_page,
-        'per_page_options': [5, 10, 50, 100]  # Pour garder une seule source de vérité
+        'per_page_options': [5, 10, 50, 100]
     }
 
     return render(request, 'student/display_students.html', context)
