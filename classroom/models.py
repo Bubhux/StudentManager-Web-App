@@ -8,7 +8,7 @@ class Classroom(models.Model):
     number_of_places_available = models.PositiveIntegerField(default=0)
 
     def __str__(self):
-        return f"Classe : {self.classroom_name}, Nombre d'étudiants : {self.students.count()}"
+        return f"Classe : {self.classroom_name}"
 
     @property
     def student_count(self):
