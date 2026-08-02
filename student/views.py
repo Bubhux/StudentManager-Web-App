@@ -10,7 +10,6 @@ def student_home_view(request):
     return render(request, 'student/student.html')
 
 def display_students_view(request):
-    # Gestion des éléments par page
     try:
         items_per_page = int(request.GET.get('items_per_page', 5))
         if items_per_page not in [5, 10, 50, 100]:
@@ -18,12 +17,12 @@ def display_students_view(request):
     except (ValueError, TypeError):
         items_per_page = 5
 
-    # Récupération des étudiants avec optimisation
-    students = Student.objects.all().order_by('last_name', 'first_name') \
+    # REQUÊTE OPTIMISÉE avec select_related
+    students = Student.objects.all() \
+        .order_by('last_name', 'first_name') \
         .select_related('classroom') \
         .prefetch_related('lessons')
 
-    # Pagination
     paginator = Paginator(students, items_per_page)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -35,7 +34,6 @@ def display_students_view(request):
         'items_per_page': items_per_page,
         'per_page_options': [5, 10, 50, 100]
     }
-
     return render(request, 'student/display_students.html', context)
 
 def add_student_view(request):
