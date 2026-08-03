@@ -1,0 +1,199 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style>
+    .btn-custom-hover:hover {
+        color: #c7c7c7 !important;
+    }
+    .table-hover tbody tr:hover {
+        background-color: rgba(0, 0, 0, 0.075);
+    }
+    .card {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .pagination .page-item .page-link {
+        color: #252525;            /* Couleur du texte */
+        background-color: #c3c3c3; /* Fond des boutons inactifs */
+        border-color: #6f6f6f;     /* Couleur de la bordure */
+        transition: all 0.3s ease;   /* Animation fluide */
+        outline: none !important;    /* Désactive le contour bleu */
+        box-shadow: none !important; /* Supprime l'ombre/glow du focus */
+    }
+
+    .pagination .page-item:hover .page-link {
+        background-color: #e9ecef; /* Fond au survol */
+        border-color: #404040;     /* Bordure au survol */
+        color: #212529;            /* Texte au survol */
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #212529; /* Fond du bouton actif */
+        border-color: #212529;     /* Bordure du bouton actif */
+        color: white;              /* Texte du bouton actif */
+    }
+
+    .pagination .page-item.disabled .page-link {
+        background-color: #c3c3c3; /* Fond des boutons désactivés */
+        border-color: #6f6f6f;     /* Bordure des boutons désactivés */
+        color: #252525;            /* Texte des boutons désactivés */
+    }
+
+    .per-page-selector {
+        width: auto;
+        display: inline-block;
+        margin-left: 15px;
+    }
+    .pagination-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+</style>
+
+<body class="d-flex align-items-center py-4 bg-body-tertiary">
+    <main class="container text-center">
+        <h2 class="mb-4 mt-4">Modification des classes</h2>
+
+        <div class="container mt-5">
+            <div class="row justify-content-center">
+                <div class="col-md-10">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                            <h4 class="mb-0 flex-grow-1 text-center">Liste des classes</h4>
+                            <span class="badge bg-light text-dark">
+                                Total : {{ page_obj.paginator.count }} classes
+                            </span>
+                        </div>
+
+                        <div class="card-body">
+                            {% if has_classrooms %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th scope="col">Nom de la classe</th>
+                                            <th scope="col">Places disponibles</th>
+                                            <th scope="col">Nombre d'étudiants</th>
+                                            <th scope="col">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for classroom in classrooms %}
+                                        <tr>
+                                            <td>{{ classroom.classroom_name }}</td>
+                                            <td>{{ classroom.number_of_places_available }}</td>
+                                            <td>{{ classroom.student_count }}</td>
+                                            <td>
+                                                <button type="button" class="btn btn-primary btn-sm" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#editModal{{ classroom.id }}">
+                                                    Modifier
+                                                </button>
+                                            </td>
+                                        </tr>
+
+                                        <!-- Modal pour chaque classe -->
+                                        <div class="modal fade" id="editModal{{ classroom.id }}" tabindex="-1" aria-labelledby="editModalLabel{{ classroom.id }}" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="editModalLabel{{ classroom.id }}">Modifier la classe: {{ classroom.classroom_name }}</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <form method="post" action="{% url 'update_classroom_info' classroom.id %}">
+                                                        {% csrf_token %}
+                                                        <div class="modal-body">
+                                                            <div class="mb-3">
+                                                                <label for="classroom_name{{ classroom.id }}" class="form-label">Nom de la classe</label>
+                                                                <input type="text" class="form-control" id="classroom_name{{ classroom.id }}" 
+                                                                    name="classroom_name" value="{{ classroom.classroom_name }}" required>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label for="number_of_places_available{{ classroom.id }}" class="form-label">Places disponibles</label>
+                                                                <input type="number" class="form-control" id="number_of_places_available{{ classroom.id }}" 
+                                                                    name="number_of_places_available" value="{{ classroom.number_of_places_available }}" min="0" required>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                            <button type="submit" class="btn btn-primary">Enregistrer</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="pagination-container mt-4">
+                                <div>
+                                    <form method="GET" class="form-inline">
+                                        <label for="items_per_page" class="me-2">Afficher :</label>
+                                        <select name="items_per_page" id="items_per_page" class="form-select form-select-sm" onchange="this.form.submit()">
+                                            {% for option in per_page_options %}
+                                            <option value="{{ option }}" {% if items_per_page == option %}selected{% endif %}>{{ option }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <input type="hidden" name="page" value="1">
+                                    </form>
+                                </div>
+
+                                <nav>
+                                    <ul class="pagination mb-0">
+                                        {% if page_obj.has_previous %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page=1&items_per_page={{ items_per_page }}" aria-label="First">
+                                                <span aria-hidden="true">&laquo;&laquo;</span>
+                                            </a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}&items_per_page={{ items_per_page }}" aria-label="Previous">
+                                                <span aria-hidden="true">&laquo;</span>
+                                            </a>
+                                        </li>
+                                        {% endif %}
+
+                                        <li class="page-item disabled">
+                                            <span class="page-link">
+                                                Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}
+                                            </span>
+                                        </li>
+
+                                        {% if page_obj.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.next_page_number }}&items_per_page={{ items_per_page }}" aria-label="Next">
+                                                <span aria-hidden="true">&raquo;</span>
+                                            </a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&items_per_page={{ items_per_page }}" aria-label="Last">
+                                                <span aria-hidden="true">&raquo;&raquo;</span>
+                                            </a>
+                                        </li>
+                                        {% endif %}
+                                    </ul>
+                                </nav>
+                            </div>
+
+                            {% else %}
+                            <div class="alert alert-info" role="alert">
+                                Il n'y a pas de classes à afficher.
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
+</body>
+
+{% endblock content %}
