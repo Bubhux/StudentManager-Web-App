@@ -63,8 +63,42 @@ def add_classroom_view(request):
     
     return render(request, 'classroom/add_classroom.html', {'form': form})
 
-def update_classroom_info_view(request):
-    return render(request, 'classroom/update_classroom.html')
+def update_classroom_info_view(request, classroom_id=None):
+    # Si c'est une requête POST (envoi du formulaire de modification)
+    if request.method == 'POST' and classroom_id:
+        classroom = get_object_or_404(Classroom, id=classroom_id)
+        
+        # Récupérer les données du formulaire
+        classroom_name = request.POST.get('classroom_name')
+        number_of_places_available = request.POST.get('number_of_places_available')
+        
+        try:
+            # Mettre à jour les informations de la classe
+            classroom.classroom_name = classroom_name
+            classroom.number_of_places_available = int(number_of_places_available)
+            classroom.save()
+            
+            messages.success(request, f"La classe {classroom.classroom_name} a été mise à jour avec succès!")
+            return redirect('update_classroom_info')
+        
+        except Exception as e:
+            messages.error(request, f"Une erreur est survenue lors de la mise à jour: {str(e)}")
+            return redirect('update_classroom_info')
+    
+    # Si c'est une requête GET (affichage de la liste)
+    classrooms_list = Classroom.objects.all().order_by('classroom_name')
+    paginator = Paginator(classrooms_list, 10)  # 10 classes par page
+    
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'classrooms': page_obj,
+        'page_obj': page_obj,
+        'has_classrooms': classrooms_list.exists()
+    }
+    
+    return render(request, 'classroom/update_classroom.html', context)
 
 def add_students_to_classroom_view(request):
     return render(request, 'classroom/add_students.html')
