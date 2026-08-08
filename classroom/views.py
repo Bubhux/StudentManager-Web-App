@@ -1,5 +1,5 @@
 # classroom/views.py
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.core.paginator import Paginator
 from .forms import ClassroomForm
@@ -64,40 +64,60 @@ def add_classroom_view(request):
     return render(request, 'classroom/add_classroom.html', {'form': form})
 
 def update_classroom_info_view(request, classroom_id=None):
-    # Si c'est une requête POST (envoi du formulaire de modification)
+    # Configuration de la pagination
+    per_page_options = [5, 10, 50, 100]
+
+    try:
+        items_per_page = int(request.GET.get('items_per_page', 5))
+        items_per_page = items_per_page if items_per_page in per_page_options else 5
+    except (ValueError, TypeError):
+        items_per_page = 10
+
+    # Gestion de la requête POST (modification d'une classe)
     if request.method == 'POST' and classroom_id:
         classroom = get_object_or_404(Classroom, id=classroom_id)
-        
-        # Récupérer les données du formulaire
-        classroom_name = request.POST.get('classroom_name')
+
+        classroom_name = request.POST.get('classroom_name', '').strip()
         number_of_places_available = request.POST.get('number_of_places_available')
-        
+
         try:
-            # Mettre à jour les informations de la classe
+            # Validation des données
+            if not classroom_name:
+                raise ValueError("Le nom de la classe ne peut pas être vide")
+
+            number_of_places_available = int(number_of_places_available)
+            if number_of_places_available < 0:
+                raise ValueError("Le nombre de places disponibles ne peut pas être négatif")
+
+            # Mise à jour de la classe
             classroom.classroom_name = classroom_name
-            classroom.number_of_places_available = int(number_of_places_available)
+            classroom.number_of_places_available = number_of_places_available
             classroom.save()
-            
+
             messages.success(request, f"La classe {classroom.classroom_name} a été mise à jour avec succès!")
-            return redirect('update_classroom_info')
-        
+            return redirect(f"{request.path_info}?items_per_page={request.POST.get('items_per_page', items_per_page)}")
+
+        except ValueError as e:
+            messages.error(request, f"Erreur de validation: {str(e)}")
         except Exception as e:
-            messages.error(request, f"Une erreur est survenue lors de la mise à jour: {str(e)}")
-            return redirect('update_classroom_info')
-    
-    # Si c'est une requête GET (affichage de la liste)
-    classrooms_list = Classroom.objects.all().order_by('classroom_name')
-    paginator = Paginator(classrooms_list, 10)  # 10 classes par page
-    
+            messages.error(request, f"Une erreur est survenue: {str(e)}")
+
+        return redirect('update_classroom_info')
+
+    # Gestion de la requête GET (affichage de la liste)
+    classrooms = Classroom.objects.all().order_by('classroom_name')
+
+    paginator = Paginator(classrooms, items_per_page)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    
+
     context = {
-        'classrooms': page_obj,
         'page_obj': page_obj,
-        'has_classrooms': classrooms_list.exists()
+        'has_classrooms': classrooms.exists(),
+        'items_per_page': items_per_page,
+        'per_page_options': per_page_options,
     }
-    
+
     return render(request, 'classroom/update_classroom.html', context)
 
 def add_students_to_classroom_view(request):
