@@ -47,6 +47,7 @@ urlpatterns = [
     path('classroom/display/', display_classrooms_view, name='display_classrooms'),
     path('classroom/add/', add_classroom_view, name='add_classroom'),
     path('classroom/update/', update_classroom_info_view, name='update_classroom_info'),
+    path('classroom/update/<int:classroom_id>/', update_classroom_info_view, name='update_classroom_info'),
     path('classroom/add-students/', add_students_to_classroom_view, name='add_students_to_classroom'),
     path('classroom/delete-students/', delete_students_from_classroom_view, name='delete_students_from_classroom'),
     path('classroom/calculate-classroom-average/', calculate_classroom_average_view, name='calculate_classroom_average'),
