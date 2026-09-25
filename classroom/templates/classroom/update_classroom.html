@@ -113,7 +113,7 @@
                                                         <h5 class="modal-title" id="editModalLabel{{ classroom.id }}">Modifier la classe: {{ classroom.classroom_name }}</h5>
                                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                     </div>
-                                                    <form method="post" action="{% url 'update_classroom_info' classroom.id %}">
+                                                    <form method="post" action="{% url 'classroom_update_detail' classroom.id %}">
                                                         {% csrf_token %}
                                                         <input type="hidden" name="items_per_page" value="{{ items_per_page }}">
                                                         <div class="modal-body">
