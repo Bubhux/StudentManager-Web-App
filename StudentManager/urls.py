@@ -61,7 +61,10 @@ urlpatterns = [
     path('student/add/', add_student_view, name='add_student'),
     path('student/add-subject-to-student/', add_subject_to_student_view, name='add_subject_to_student'),
     path('student/update-student-grades/', update_student_grades_view, name='update_student_grades'),
-    path('student/update-student-info/', update_student_info_view, name='update_student_info'),
+
+    path('student/update/', update_student_info_view, name='update_student_info'),
+    path('student/update-student-info/<int:student_id>/', update_student_info_view, name='student_update_detail'),
+
     path('student/calculate-student-average/', calculate_student_average_view, name='calculate_student_average'),
     path('student/delete-student/', delete_student_view, name='delete_student'),
 ]
