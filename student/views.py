@@ -1,5 +1,5 @@
 # student/views.py
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.core.paginator import Paginator
 from .forms import StudentForm, LessonFormSet
@@ -98,8 +98,56 @@ def add_subject_to_student_view(request):
 def update_student_grades_view(request):
     return render(request, 'student/update_student_grades.html')
 
-def update_student_info_view(request):
-    return render(request, 'student/update_student_info.html')
+def update_student_info_view(request, student_id=None):
+    per_page_options = [5, 10, 50, 100]
+
+    try:
+        items_per_page = int(request.GET.get('items_per_page', 5))
+        items_per_page = items_per_page if items_per_page in per_page_options else 5
+    except (ValueError, TypeError):
+        items_per_page = 10
+
+    if request.method == 'POST' and student_id:
+        student = get_object_or_404(Student, id=student_id)
+
+        first_name = request.POST.get('first_name', '').strip()
+        last_name = request.POST.get('last_name', '').strip()
+        email = request.POST.get('email', '').strip()
+
+        try:
+            if not first_name or not last_name:
+                raise ValueError("Le prénom et le nom de l'étudiant ne peuvent pas être vides")
+
+            student.first_name = first_name
+            student.last_name = last_name
+            student.email = email
+            student.save()
+
+            messages.success(
+                request, f"L'étudiant {student.first_name} {student.last_name} a été mis à jour avec succès!")
+            return redirect(f"{request.path_info}?items_per_page={request.POST.get('items_per_page', items_per_page)}")
+
+        except ValueError as e:
+            messages.error(request, f"Erreur de validation: {str(e)}")
+        except Exception as e:
+            messages.error(request, f"Une erreur est survenue: {str(e)}")
+
+        return redirect('update_student_list')
+
+    students = Student.objects.all().order_by('last_name', 'first_name')
+
+    paginator = Paginator(students, items_per_page)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'page_obj': page_obj,
+        'has_students': students.exists(),
+        'items_per_page': items_per_page,
+        'per_page_options': per_page_options,
+    }
+
+    return render(request, 'student/update_student_info.html', context)
 
 def calculate_student_average_view(request):
     return render(request, 'student/calculate_student_average.html')
