@@ -109,33 +109,21 @@ def update_student_info_view(request, student_id=None):
 
     if request.method == 'POST' and student_id:
         student = get_object_or_404(Student, id=student_id)
-
-        first_name = request.POST.get('first_name', '').strip()
-        last_name = request.POST.get('last_name', '').strip()
-        email = request.POST.get('email', '').strip()
-
-        try:
-            if not first_name or not last_name:
-                raise ValueError("Le prénom et le nom de l'étudiant ne peuvent pas être vides")
-
-            student.first_name = first_name
-            student.last_name = last_name
-            student.email = email
-            student.save()
-
+        form = StudentUpdateForm(request.POST, instance=student)
+        
+        if form.is_valid():
+            form.save()
             messages.success(
-                request, f"L'étudiant {student.first_name} {student.last_name} a été mis à jour avec succès!")
+                request, 
+                f"L'étudiant {student.first_name} {student.last_name} a été mis à jour avec succès!"
+            )
             return redirect(f"{request.path_info}?items_per_page={request.POST.get('items_per_page', items_per_page)}")
-
-        except ValueError as e:
-            messages.error(request, f"Erreur de validation: {str(e)}")
-        except Exception as e:
-            messages.error(request, f"Une erreur est survenue: {str(e)}")
-
-        return redirect('update_student_list')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"Erreur {field}: {error}")
 
     students = Student.objects.all().order_by('last_name', 'first_name')
-
     paginator = Paginator(students, items_per_page)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
