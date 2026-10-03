@@ -1,9 +1,60 @@
 # student/forms.py
 from django import forms
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator, validate_email
+from django.core.exceptions import ValidationError
 from .models import Student, Lesson, StudentLesson
 from classroom.models import Classroom
 from django.forms import formset_factory
+
+
+class StudentUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Student
+        fields = ['first_name', 'last_name', 'email']
+        widgets = {
+            'first_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Prénom de l\'étudiant'
+            }),
+            'last_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Nom de l\'étudiant'
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'email@exemple.com'
+            }),
+        }
+
+    def clean_first_name(self):
+        first_name = self.cleaned_data.get('first_name', '').strip()
+        if not first_name:
+            raise ValidationError("Le prénom est obligatoire")
+        if len(first_name) < 2:
+            raise ValidationError("Le prénom doit contenir au moins 2 caractères")
+        return first_name
+
+    def clean_last_name(self):
+        last_name = self.cleaned_data.get('last_name', '').strip()
+        if not last_name:
+            raise ValidationError("Le nom est obligatoire")
+        if len(last_name) < 2:
+            raise ValidationError("Le nom doit contenir au moins 2 caractères")
+        return last_name
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email', '').strip()
+        if email:  # Le champ est optionnel donc on ne valide que si rempli
+            try:
+                validate_email(email)
+            except ValidationError:
+                raise ValidationError("Veuillez entrer une adresse email valide")
+
+            # Vérifie que l'email n'existe pas déjà (sauf pour l'étudiant actuel)
+            student = self.instance
+            if Student.objects.filter(email=email).exclude(id=student.id).exists():
+                raise ValidationError("Cette adresse email est déjà utilisée par un autre étudiant")
+        return email
 
 
 class LessonForm(forms.Form):
