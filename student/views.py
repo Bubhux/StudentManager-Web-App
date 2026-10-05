@@ -2,7 +2,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.core.paginator import Paginator
-from .forms import StudentForm, LessonFormSet
+from .forms import StudentForm, LessonFormSet, StudentUpdateForm
 from .models import Student, Lesson, StudentLesson
 
 
@@ -110,11 +110,11 @@ def update_student_info_view(request, student_id=None):
     if request.method == 'POST' and student_id:
         student = get_object_or_404(Student, id=student_id)
         form = StudentUpdateForm(request.POST, instance=student)
-        
+
         if form.is_valid():
             form.save()
             messages.success(
-                request, 
+                request,
                 f"L'étudiant {student.first_name} {student.last_name} a été mis à jour avec succès!"
             )
             return redirect(f"{request.path_info}?items_per_page={request.POST.get('items_per_page', items_per_page)}")
