@@ -118,7 +118,7 @@ def update_classroom_info_view(request, classroom_id=None):
         'per_page_options': per_page_options,
     }
 
-    return render(request, 'classroom/update_classroom.html', context)
+    return render(request, 'classroom/update_classroom_info.html', context)
 
 def add_students_to_classroom_view(request):
     return render(request, 'classroom/add_students.html')
