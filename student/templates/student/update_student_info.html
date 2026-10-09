@@ -7,9 +7,15 @@
     .btn-custom-hover:hover {
         color: #c7c7c7 !important;
     }
+
+    .btn-custom-padding {
+        padding: 0.1rem 0.5rem;
+    }
+
     .table-hover tbody tr:hover {
         background-color: rgba(0, 0, 0, 0.075);
     }
+
     .card {
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
@@ -97,7 +103,7 @@
                                             <td>{{ student.last_name }}</td>
                                             <td>{{ student.email }}</td>
                                             <td>
-                                                <button type="button" class="btn btn-secondary btn-custom-hover" 
+                                                <button type="button" class="btn btn-secondary btn-custom-hover btn-custom-padding" 
                                                     data-bs-toggle="modal" 
                                                     data-bs-target="#editModal{{ student.id }}">
                                                     Modifier
