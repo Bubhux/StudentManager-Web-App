@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from .forms import StudentForm, LessonFormSet, StudentUpdateForm
 from .models import Student, Lesson, StudentLesson
+from classroom.models import Classroom
 
 
 def student_home_view(request):
@@ -100,6 +101,7 @@ def update_student_grades_view(request):
 
 def update_student_info_view(request, student_id=None):
     per_page_options = [5, 10, 50, 100]
+    classrooms = Classroom.objects.all()
 
     try:
         items_per_page = int(request.GET.get('items_per_page', 5))
@@ -109,19 +111,54 @@ def update_student_info_view(request, student_id=None):
 
     if request.method == 'POST' and student_id:
         student = get_object_or_404(Student, id=student_id)
-        form = StudentUpdateForm(request.POST, instance=student)
 
-        if form.is_valid():
-            form.save()
-            messages.success(
-                request,
-                f"L'étudiant {student.first_name} {student.last_name} a été mis à jour avec succès!"
-            )
-            return redirect(f"{request.path_info}?items_per_page={request.POST.get('items_per_page', items_per_page)}")
+        # Mettre à jour les informations de base
+        student.first_name = request.POST.get('first_name')
+        student.last_name = request.POST.get('last_name')
+        student.email = request.POST.get('email')
+        student.save()
+
+        # Mettre à jour la classe
+        classroom_id = request.POST.get('classroom')
+        if classroom_id:
+            classroom = Classroom.objects.get(id=classroom_id)
+            student.classroom = classroom
         else:
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, f"Erreur {field}: {error}")
+            student.classroom = None
+
+        student.save()
+
+        # Gére les leçons
+        lesson_names = request.POST.getlist('lesson_names')
+        lesson_grades = request.POST.getlist('lesson_grades')
+
+        # Supprime toutes les leçons existantes pour cet étudiant
+        StudentLesson.objects.filter(student=student).delete()
+
+        # Ajoute les nouvelles leçons
+        for name, grade in zip(lesson_names, lesson_grades):
+            name = name.strip()
+            if name:  # Ne traite que si le nom n'est pas vide
+                lesson, created = Lesson.objects.get_or_create(name=name)
+
+                try:
+                    grade = float(grade) if grade.strip() else None
+                    if grade is not None and (grade < 0 or grade > 20):
+                        grade = None
+                except (ValueError, TypeError):
+                    grade = None
+
+                StudentLesson.objects.create(
+                    student=student,
+                    lesson=lesson,
+                    grade=grade
+                )
+
+        messages.success(
+            request,
+            f"L'étudiant {student.first_name} {student.last_name} a été mis à jour avec succès!"
+        )
+        return redirect(f"{request.path_info}?items_per_page={request.POST.get('items_per_page', items_per_page)}")
 
     students = Student.objects.all().order_by('last_name', 'first_name')
     paginator = Paginator(students, items_per_page)
@@ -133,6 +170,7 @@ def update_student_info_view(request, student_id=None):
         'has_students': students.exists(),
         'items_per_page': items_per_page,
         'per_page_options': per_page_options,
+        'classrooms': classrooms,
     }
 
     return render(request, 'student/update_student_info.html', context)

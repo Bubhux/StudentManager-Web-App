@@ -113,7 +113,7 @@
 
                                         <!-- Modal pour chaque étudiant -->
                                         <div class="modal fade" id="editModal{{ student.id }}" tabindex="-1" aria-labelledby="editModalLabel{{ student.id }}" aria-hidden="true">
-                                            <div class="modal-dialog" style="margin-top: 12rem;">
+                                            <div class="modal-dialog modal-lg" style="margin-top: 5rem;">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
                                                         <h5 class="modal-title" id="editModalLabel{{ student.id }}">Modifier l'étudiant: {{ student.first_name }} {{ student.last_name }}</h5>
@@ -123,30 +123,84 @@
                                                         {% csrf_token %}
                                                         <input type="hidden" name="items_per_page" value="{{ items_per_page }}">
                                                         <div class="modal-body">
-                                                            <div class="mb-3">
-                                                                <label for="first_name{{ student.id }}" class="form-label">Prénom de l'étudiant</label>
-                                                                <input type="text" class="form-control" id="first_name{{ student.id }}" 
-                                                                    name="first_name" value="{{ student.first_name }}" required>
-                                                            </div>
-                                                            <div class="mb-3">
-                                                                <label for="last_name{{ student.id }}" class="form-label">Nom de l'étudiant</label>
-                                                                <input type="text" class="form-control" id="last_name{{ student.id }}" 
-                                                                    name="last_name" value="{{ student.last_name }}" required>
-                                                            </div>
-                                                            <div class="mb-3">
-                                                                <label for="email{{ student.id }}" class="form-label">Email</label>
-                                                                <input type="text" class="form-control" id="email{{ student.id }}" 
-                                                                    name="email" value="{{ student.email }}" required>
+                                                            <div class="row">
+                                                                <!-- Colonne de gauche -->
+                                                                <div class="col-md-6">
+                                                                    <div class="mb-3">
+                                                                        <label for="first_name{{ student.id }}" class="form-label">Prénom</label>
+                                                                        <input type="text" class="form-control" id="first_name{{ student.id }}" 
+                                                                            name="first_name" value="{{ student.first_name }}" required>
+                                                                    </div>
+                                                                    <div class="mb-3">
+                                                                        <label for="last_name{{ student.id }}" class="form-label">Nom</label>
+                                                                        <input type="text" class="form-control" id="last_name{{ student.id }}" 
+                                                                            name="last_name" value="{{ student.last_name }}" required>
+                                                                    </div>
+                                                                    <div class="mb-3">
+                                                                        <label for="email{{ student.id }}" class="form-label">Email</label>
+                                                                        <input type="email" class="form-control" id="email{{ student.id }}" 
+                                                                            name="email" value="{{ student.email }}" required>
+                                                                    </div>
+
+                                                                    <!-- Section Classe - colonne de gauche -->
+                                                                    <div class="mb-3">
+                                                                        <label class="form-label">Classe actuelle</label>
+                                                                        <div class="mb-2">
+                                                                            <input type="text" class="form-control" 
+                                                                                value="{% if student.classroom %}{{ student.classroom.classroom_name }}{% else %}Aucune classe attribuée{% endif %}" 
+                                                                                readonly>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="mb-3">
+                                                                        <label class="form-label">Modifier la classe</label>
+                                                                        <select class="form-select" id="classroom_name{{ student.id }}" name="classroom_name">
+                                                                            <option value="">-- Sélectionnez une classe --</option>
+                                                                            {% for classroom in classrooms %}
+                                                                                <option value="{{ classroom.id }}" 
+                                                                                    {% if student.classroom and classroom.id == student.classroom.id %}selected{% endif %}>
+                                                                                    {{ classroom.classroom_name }}
+                                                                                </option>
+                                                                            {% endfor %}
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+
+                                                                <!-- Section Lessons - Colonne de droite -->
+                                                                <div class="col-md-6">
+                                                                    <div class="mb-3">
+                                                                        <label class="form-label">Matières et notes</label>
+                                                                        <div id="lessons-container-{{ student.id }}">
+                                                                            {% for student_lesson in student.studentlesson_set.all %}
+                                                                            <div class="lesson-item mb-2">
+                                                                                <div class="input-group">
+                                                                                    <input type="text" class="form-control" name="lesson_names" 
+                                                                                        value="{{ student_lesson.lesson.name }}" placeholder="Nom de la matière" required>
+                                                                                    <input type="number" class="form-control" name="lesson_grades" 
+                                                                                        value="{{ student_lesson.grade|default_if_none:'' }}" 
+                                                                                        step="0.01" min="0" max="20" placeholder="Note (0-20)">
+                                                                                    <button type="button" class="btn btn-outline-danger remove-lesson" onclick="removeLesson(this)">×</button>
+                                                                                </div>
+                                                                            </div>
+                                                                            {% endfor %}
+                                                                        </div>
+                                                                        <button type="button" class="btn btn-sm btn-secondary mt-2" 
+                                                                            onclick="addLessonField('{{ student.id }}')">
+                                                                            <i class="bi bi-plus"></i> Ajouter une matière
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                         <div class="modal-footer">
                                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                                                            <button type="submit" class="btn btn-secondary btn-custom-hover">Enregistrer</button>
+                                                            <button type="submit" class="btn btn-primary">Enregistrer</button>
                                                         </div>
                                                     </form>
                                                 </div>
                                             </div>
                                         </div>
+
                                         {% endfor %}
                                     </tbody>
                                 </table>
@@ -215,6 +269,29 @@
     </main>
 
     <script src="/static/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Fonction pour ajouter un champ de matière
+        function addLessonField(studentId) {
+            const container = document.getElementById(`lessons-container-${studentId}`);
+            const newLesson = document.createElement('div');
+            newLesson.className = 'lesson-item mb-2';
+            newLesson.innerHTML = `
+                <div class="input-group">
+                    <input type="text" class="form-control" name="lesson_names" placeholder="Nom de la matière" required>
+                    <input type="number" class="form-control" name="lesson_grades" 
+                        step="0.01" min="0" max="20" placeholder="Note (0-20)">
+                    <button type="button" class="btn btn-outline-danger remove-lesson" onclick="removeLesson(this)">×</button>
+                </div>
+            `;
+            container.appendChild(newLesson);
+        }
+        
+        // Fonction pour supprimer un champ de matière
+        function removeLesson(button) {
+            const lessonItem = button.closest('.lesson-item');
+            lessonItem.remove();
+        }
+    </script>
 </body>
 
 {% endblock content %}
