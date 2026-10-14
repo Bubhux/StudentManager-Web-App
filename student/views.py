@@ -109,6 +109,11 @@ def update_student_info_view(request, student_id=None):
     except (ValueError, TypeError):
         items_per_page = 10
 
+    students = Student.objects.all() \
+        .order_by('last_name', 'first_name') \
+        .select_related('classroom') \
+        .prefetch_related('lessons')
+
     if request.method == 'POST' and student_id:
         student = get_object_or_404(Student, id=student_id)
 
@@ -158,6 +163,7 @@ def update_student_info_view(request, student_id=None):
             request,
             f"L'étudiant {student.first_name} {student.last_name} a été mis à jour avec succès!"
         )
+        print(f"Classe de l'étudiant: {student.classroom if student.classroom else 'Aucune'}")
         return redirect(f"{request.path_info}?items_per_page={request.POST.get('items_per_page', items_per_page)}")
 
     students = Student.objects.all().order_by('last_name', 'first_name')
