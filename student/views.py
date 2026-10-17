@@ -124,10 +124,13 @@ def update_student_info_view(request, student_id=None):
         student.save()
 
         # Mettre à jour la classe
-        classroom_id = request.POST.get('classroom')
+        classroom_id = request.POST.get('classroom_name')
         if classroom_id:
-            classroom = Classroom.objects.get(id=classroom_id)
-            student.classroom = classroom
+            try:
+                classroom = Classroom.objects.get(id=classroom_id)
+                student.classroom = classroom
+            except Classroom.DoesNotExist:
+                student.classroom = None
         else:
             student.classroom = None
 
@@ -163,7 +166,7 @@ def update_student_info_view(request, student_id=None):
             request,
             f"L'étudiant {student.first_name} {student.last_name} a été mis à jour avec succès!"
         )
-        print(f"Classe de l'étudiant: {student.classroom if student.classroom else 'Aucune'}")
+
         return redirect(f"{request.path_info}?items_per_page={request.POST.get('items_per_page', items_per_page)}")
 
     students = Student.objects.all().order_by('last_name', 'first_name')
