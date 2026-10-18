@@ -191,16 +191,15 @@
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                                                            <button type="submit" class="btn btn-primary">Enregistrer</button>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                                <button type="submit" class="btn btn-primary">Enregistrer</button>
+                                                            </div>
                                                         </div>
                                                     </form>
                                                 </div>
                                             </div>
                                         </div>
-
                                         {% endfor %}
                                     </tbody>
                                 </table>
@@ -276,20 +275,27 @@
             const newLesson = document.createElement('div');
             newLesson.className = 'lesson-item mb-2';
             newLesson.innerHTML = `
-                <div class="input-group">
-                    <input type="text" class="form-control" name="lesson_names" placeholder="Nom de la matière" required>
-                    <input type="number" class="form-control" name="lesson_grades" 
-                        step="0.01" min="0" max="20" placeholder="Note (0-20)">
-                    <button type="button" class="btn btn-outline-danger remove-lesson" onclick="removeLesson(this)">×</button>
-                </div>
-            `;
+                    <div class="input-group">
+                        <input type="text" class="form-control lesson-name" name="lesson_names" 
+                            placeholder="Nom de la matière" required>
+                        <input type="number" class="form-control lesson-grade" name="lesson_grades" 
+                            step="0.01" min="0" max="20" placeholder="Note (0-20)">
+                        <button type="button" class="btn btn-outline-danger remove-lesson" 
+                            onclick="removeLesson(this)">×</button>
+                    </div>
+                `;
             container.appendChild(newLesson);
+
+            // Focus sur le nouveau champ de nom
+            newLesson.querySelector('input[type="text"]').focus();
         }
-        
+
         // Fonction pour supprimer un champ de matière
         function removeLesson(button) {
             const lessonItem = button.closest('.lesson-item');
-            lessonItem.remove();
+            if (lessonItem) {
+                lessonItem.remove();
+            }
         }
     </script>
 </body>
