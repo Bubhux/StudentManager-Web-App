@@ -158,11 +158,16 @@ def update_student_info_view(request, student_id=None):
                 student_lesson.grade = grade
                 student_lesson.save()
             else:
-                # Créer une nouvelle leçon ou utiliser une existante
-                lesson, created = Lesson.objects.get_or_create(
-                    name=name,
-                    defaults={'name': name}
-                )
+                # Solution pour gérer les doublons de leçons
+                lessons = Lesson.objects.filter(name=name)
+                if lessons.exists():
+                    # Utiliser la première leçon existante
+                    lesson = lessons.first()
+                else:
+                    # Créer une nouvelle leçon si elle n'existe pas
+                    lesson = Lesson.objects.create(name=name)
+
+                # Créer la relation StudentLesson
                 StudentLesson.objects.create(
                     student=student,
                     lesson=lesson,
