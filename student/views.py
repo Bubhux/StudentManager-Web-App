@@ -129,15 +129,15 @@ def update_student_info_view(request, student_id=None):
             student.classroom = None
         student.save()
 
-        # Gérer les leçons
+        # Gére les leçons
         lesson_names = request.POST.getlist('lesson_names')
         lesson_grades = request.POST.getlist('lesson_grades')
 
-        # Récupérer toutes les leçons existantes pour cet étudiant
+        # Récupére toutes les leçons existantes pour cet étudiant
         existing_student_lessons = student.studentlesson_set.select_related('lesson').all()
         existing_lessons_map = {sl.lesson.name: sl for sl in existing_student_lessons}
 
-        # Traiter chaque leçon soumise
+        # Traite chaque leçon soumise
         for name, grade in zip(lesson_names, lesson_grades):
             name = name.strip()
             if not name:  # Ignorer les noms vides
@@ -151,7 +151,7 @@ def update_student_info_view(request, student_id=None):
             except (ValueError, TypeError):
                 grade = None
 
-            # Vérifier si la leçon existe déjà pour cet étudiant
+            # Vérifie si la leçon existe déjà pour cet étudiant
             if name in existing_lessons_map:
                 # Mettre à jour la leçon existante
                 student_lesson = existing_lessons_map[name]
@@ -161,20 +161,20 @@ def update_student_info_view(request, student_id=None):
                 # Solution pour gérer les doublons de leçons
                 lessons = Lesson.objects.filter(name=name)
                 if lessons.exists():
-                    # Utiliser la première leçon existante
+                    # Utilise la première leçon existante
                     lesson = lessons.first()
                 else:
-                    # Créer une nouvelle leçon si elle n'existe pas
+                    # Crée une nouvelle leçon si elle n'existe pas
                     lesson = Lesson.objects.create(name=name)
 
-                # Créer la relation StudentLesson
+                # Crée la relation StudentLesson
                 StudentLesson.objects.create(
                     student=student,
                     lesson=lesson,
                     grade=grade
                 )
 
-        # Supprimer les leçons qui n'ont pas été soumises
+        # Supprime les leçons qui n'ont pas été soumises
         submitted_lessons = {name.strip() for name in lesson_names if name.strip()}
         for student_lesson in existing_student_lessons:
             if student_lesson.lesson.name not in submitted_lessons:
