@@ -66,5 +66,6 @@ urlpatterns = [
     path('student/update-student-info/<int:student_id>/', update_student_info_view, name='student_update_detail'),
 
     path('student/calculate-student-average/', calculate_student_average_view, name='calculate_student_average'),
+
     path('student/delete-student/', delete_student_view, name='delete_student'),
 ]

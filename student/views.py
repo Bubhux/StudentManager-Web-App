@@ -2,6 +2,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.core.paginator import Paginator
+from django.db.models import Avg
 from .forms import StudentForm, LessonFormSet, StudentUpdateForm
 from .models import Student, Lesson, StudentLesson
 from classroom.models import Classroom
@@ -184,7 +185,13 @@ def update_student_info_view(request, student_id=None):
             request,
             f"L'étudiant {student.first_name} {student.last_name} a été mis à jour avec succès!"
         )
-        return redirect(f"{request.path_info}?items_per_page={request.POST.get('items_per_page', items_per_page)}")
+        referer = request.META.get('HTTP_REFERER', '')
+        if 'calculate-student-average' in referer:
+            # Redirige vers la page calculate_student_average
+            return redirect('calculate_student_average')
+        else:
+            # Redirige vers la page update_student_info (comportement par défaut)
+            return redirect(f"{request.path_info}?items_per_page={request.POST.get('items_per_page', items_per_page)}")
 
     students = Student.objects.all().order_by('last_name', 'first_name')
     paginator = Paginator(students, items_per_page)
@@ -201,7 +208,52 @@ def update_student_info_view(request, student_id=None):
     return render(request, 'student/update_student_info.html', context)
 
 def calculate_student_average_view(request):
-    return render(request, 'student/calculate_student_average.html')
+    students = Student.objects.all() \
+        .order_by('last_name', 'first_name') \
+        .select_related('classroom') \
+        .prefetch_related('studentlesson_set__lesson')
+
+    # Calcul la moyenne pour chaque étudiant
+    students_with_averages = []
+    for student in students:
+        # Récupére les notes valides (entre 0 et 20)
+        valid_grades = student.studentlesson_set.exclude(grade__isnull=True).filter(grade__gte=0, grade__lte=20)
+
+        if valid_grades.exists():
+            average = valid_grades.aggregate(Avg('grade'))['grade__avg']
+            average = round(average, 2) if average else None
+        else:
+            average = None
+
+        students_with_averages.append({
+            'student': student,
+            'average': average,
+            'grades_count': valid_grades.count()
+        })
+
+    # Gestion de la pagination
+    try:
+        items_per_page = int(request.GET.get('items_per_page', 10))
+        if items_per_page not in [5, 10, 50, 100]:
+            items_per_page = 10
+    except (ValueError, TypeError):
+        items_per_page = 10
+
+    paginator = Paginator(students_with_averages, items_per_page)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    classrooms = Classroom.objects.all()
+
+    context = {
+        'page_obj': page_obj,
+        'items_per_page': items_per_page,
+        'per_page_options': [5, 10, 50, 100],
+        'has_students': students.exists(),
+        'classrooms': classrooms,
+    }
+
+    return render(request, 'student/calculate_student_average.html', context)
 
 def delete_student_view(request):
     return render(request, 'student/delete_student.html')
