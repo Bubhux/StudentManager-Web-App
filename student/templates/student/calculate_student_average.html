@@ -1,0 +1,377 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style>
+    .btn-custom-hover:hover {
+        color: #c7c7c7 !important;
+    }
+
+    .btn-custom-padding {
+        padding: 0.1rem 0.5rem;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: rgba(0, 0, 0, 0.075);
+    }
+
+    .card {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .pagination .page-item .page-link {
+        color: #252525;            /* Couleur du texte */
+        background-color: #c3c3c3; /* Fond des boutons inactifs */
+        border-color: #6f6f6f;     /* Couleur de la bordure */
+        transition: all 0.3s ease;   /* Animation fluide */
+        outline: none !important;    /* Désactive le contour bleu */
+        box-shadow: none !important; /* Supprime l'ombre/glow du focus */
+    }
+
+    .pagination .page-item:hover .page-link {
+        background-color: #e9ecef; /* Fond au survol */
+        border-color: #404040;     /* Bordure au survol */
+        color: #212529;            /* Texte au survol */
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #212529; /* Fond du bouton actif */
+        border-color: #212529;     /* Bordure du bouton actif */
+        color: white;              /* Texte du bouton actif */
+    }
+
+    .pagination .page-item.disabled .page-link {
+        background-color: #c3c3c3; /* Fond des boutons désactivés */
+        border-color: #6f6f6f;     /* Bordure des boutons désactivés */
+        color: #252525;            /* Texte des boutons désactivés */
+    }
+
+    .per-page-selector {
+        width: auto;
+        display: inline-block;
+        margin-left: 15px;
+    }
+
+    .pagination-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .average-badge {
+        font-size: 0.75rem !important;  /* Taille de police réduite */
+        padding: 0.2rem 0.4rem !important;  /* Padding réduit */
+        line-height: 1.2 !important;
+        border-radius: 0.25rem !important;
+        display: inline-block;
+        white-space: nowrap;
+        min-width: 70px;  /* Largeur minimale réduite */
+        text-align: center;
+    }
+
+    /* Option encore plus compacte */
+    .average-badge.compact {
+        font-size: 0.7rem !important;
+        padding: 0.15rem 0.3rem !important;
+        min-width: 60px;
+    }
+
+    /* Pour rendre la cellule plus étroite */
+    .average-cell {
+        width: 100px;
+        min-width: 100px;
+        text-align: center;
+        padding: 0.3rem !important;
+    }
+</style>
+
+<body class="d-flex align-items-center py-4 bg-body-tertiary">
+    <main class="container text-center">
+        <h2 class="mb-4 mt-4">Calculer la moyenne des étudiants</h2>
+
+        <div class="container mt-5">
+            <div class="row justify-content-center">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                            <h4 class="mb-0 flex-grow-1 text-center">Moyennes des étudiants</h4>
+                            <span class="badge bg-light text-dark">
+                                Total : {{ page_obj.paginator.count }} étudiants
+                            </span>
+                        </div>
+
+                        <div class="card-body">
+                            {% if messages %}
+                                {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                                {% endfor %}
+                            {% endif %}
+
+                            {% if has_students %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th scope="col">Prénom</th>
+                                            <th scope="col">Nom</th>
+                                            <th scope="col">Classe</th>
+                                            <th scope="col">Nombre de notes</th>
+                                            <th scope="col">Moyenne</th>
+                                            <th scope="col">Appréciation</th>
+                                            <th scope="col">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for student_data in page_obj %}
+                                        {% with student=student_data.student average=student_data.average grades_count=student_data.grades_count %}
+                                        <tr>
+                                            <td>{{ student.first_name }}</td>
+                                            <td>{{ student.last_name }}</td>
+                                            <td>
+                                                {% if student.classroom %}
+                                                    {{ student.classroom.classroom_name }}
+                                                {% else %}
+                                                    <span class="text-muted">Aucune classe</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <span class="badge {% if grades_count > 0 %}bg-secondary{% else %}bg-secondary{% endif %}">
+                                                    {{ grades_count }} note(s)
+                                                </span>
+                                            </td>
+                                            <td>
+                                                {% if average is not None %}
+                                                    <span class="average-badge compact badge
+                                                        {% if average >= 16 %}bg-secondary
+                                                        {% elif average >= 12 %}bg-secondary
+                                                        {% elif average >= 10 %}bg-secondary
+                                                        {% else %}bg-danger
+                                                        {% endif %} fs-6">
+                                                        {{ average }}/20
+                                                    </span>
+                                                {% else %}
+                                                    <span class="average-badge compact badge bg-secondary">Non calculable</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if average is not None %}
+                                                    {% if average >= 16 %}Excellent
+                                                    {% elif average >= 14 %}Très bien
+                                                    {% elif average >= 12 %}Bien
+                                                    {% elif average >= 10 %}Assez bien
+                                                    {% else %}Insuffisant
+                                                    {% endif %}
+                                                {% else %}
+                                                    <span class="text-muted">-</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <button type="button" class="btn btn-secondary btn-custom-hover btn-custom-padding" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#editModal{{ student.id }}">
+                                                    Modifier
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        {% endwith %}
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Modal pour chaque étudiant -->
+                            {% for student_data in page_obj %}
+                            {% with student=student_data.student %}
+                            <div class="modal fade" id="editModal{{ student.id }}" tabindex="-1" aria-labelledby="editModalLabel{{ student.id }}" aria-hidden="true">
+                                <div class="modal-dialog modal-lg" style="margin-top: 5rem;">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="editModalLabel{{ student.id }}">Modifier l'étudiant: {{ student.first_name }} {{ student.last_name }}</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <form method="post" action="{% url 'student_update_detail' student.id %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="items_per_page" value="{{ items_per_page }}">
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <!-- Colonne de gauche -->
+                                                    <div class="col-md-6">
+                                                        <div class="mb-3">
+                                                            <label for="first_name{{ student.id }}" class="form-label">Prénom</label>
+                                                            <input type="text" class="form-control" id="first_name{{ student.id }}" 
+                                                                name="first_name" value="{{ student.first_name }}" required>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="last_name{{ student.id }}" class="form-label">Nom</label>
+                                                            <input type="text" class="form-control" id="last_name{{ student.id }}" 
+                                                                name="last_name" value="{{ student.last_name }}" required>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="email{{ student.id }}" class="form-label">Email</label>
+                                                            <input type="email" class="form-control" id="email{{ student.id }}" 
+                                                                name="email" value="{{ student.email }}" required>
+                                                        </div>
+
+                                                        <!-- Section Classe - colonne de gauche -->
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Classe actuelle</label>
+                                                            <div class="mb-2">
+                                                                <input type="text" class="form-control" 
+                                                                    value="{% if student.classroom %}{{ student.classroom.classroom_name }}{% else %}Aucune classe attribuée{% endif %}" 
+                                                                    readonly>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Modifier la classe</label>
+                                                            <select class="form-select" id="classroom_name{{ student.id }}" name="classroom_name">
+                                                                <option value="">-- Sélectionnez une classe --</option>
+                                                                {% for classroom in classrooms %}
+                                                                    <option value="{{ classroom.id }}" 
+                                                                        {% if student.classroom and classroom.id == student.classroom.id %}selected{% endif %}>
+                                                                        {{ classroom.classroom_name }}
+                                                                    </option>
+                                                                {% endfor %}
+                                                            </select>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Section Lessons - Colonne de droite -->
+                                                    <div class="col-md-6">
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Matières et notes</label>
+                                                            <div id="lessons-container-{{ student.id }}">
+                                                                {% for student_lesson in student.studentlesson_set.all %}
+                                                                <div class="lesson-item mb-2">
+                                                                    <div class="input-group">
+                                                                        <input type="text" class="form-control" name="lesson_names" 
+                                                                            value="{{ student_lesson.lesson.name }}" placeholder="Nom de la matière" required>
+                                                                        <input type="number" class="form-control" name="lesson_grades" 
+                                                                            value="{{ student_lesson.grade|default_if_none:'' }}" 
+                                                                            step="0.01" min="0" max="20" placeholder="Note (0-20)">
+                                                                        <button type="button" class="btn btn-outline-danger remove-lesson" onclick="removeLesson(this)">×</button>
+                                                                    </div>
+                                                                </div>
+                                                                {% endfor %}
+                                                            </div>
+                                                            <button type="button" class="btn btn-sm btn-secondary mt-2" 
+                                                                onclick="addLessonField('{{ student.id }}')">
+                                                                <i class="bi bi-plus"></i> Ajouter une matière
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endwith %}
+                            {% endfor %}
+
+                            <!-- Pagination -->
+                            <div class="pagination-container mt-4 d-flex justify-content-between align-items-center">
+                                <div>
+                                    <form method="GET" class="form-inline">
+                                        <label for="items_per_page" class="me-2">Afficher :</label>
+                                        <select name="items_per_page" id="items_per_page" class="form-select form-select-sm" onchange="this.form.submit()">
+                                            {% for option in per_page_options %}
+                                            <option value="{{ option }}" {% if items_per_page == option %}selected{% endif %}>{{ option }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <input type="hidden" name="page" value="1">
+                                    </form>
+                                </div>
+
+                                <nav>
+                                    <ul class="pagination mb-0">
+                                        {% if page_obj.has_previous %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page=1&items_per_page={{ items_per_page }}" aria-label="First">
+                                                <span aria-hidden="true">&laquo;&laquo;</span>
+                                            </a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}&items_per_page={{ items_per_page }}" aria-label="Previous">
+                                                <span aria-hidden="true">&laquo;</span>
+                                            </a>
+                                        </li>
+                                        {% endif %}
+
+                                        <li class="page-item disabled">
+                                            <span class="page-link">
+                                                Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}
+                                            </span>
+                                        </li>
+
+                                        {% if page_obj.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.next_page_number }}&items_per_page={{ items_per_page }}" aria-label="Next">
+                                                <span aria-hidden="true">&raquo;</span>
+                                            </a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&items_per_page={{ items_per_page }}" aria-label="Last">
+                                                <span aria-hidden="true">&raquo;&raquo;</span>
+                                            </a>
+                                        </li>
+                                        {% endif %}
+                                    </ul>
+                                </nav>
+                            </div>
+
+                            {% else %}
+                            <div class="alert alert-info" role="alert">
+                                Il n'y a pas d'étudiants à afficher.
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Fonction pour ajouter un champ de matière
+        function addLessonField(studentId) {
+            const container = document.getElementById(`lessons-container-${studentId}`);
+            const newLesson = document.createElement('div');
+            newLesson.className = 'lesson-item mb-2';
+            newLesson.innerHTML = `
+                    <div class="input-group">
+                        <input type="text" class="form-control lesson-name" name="lesson_names" 
+                            placeholder="Nom de la matière" required>
+                        <input type="number" class="form-control lesson-grade" name="lesson_grades" 
+                            step="0.01" min="0" max="20" placeholder="Note (0-20)">
+                        <button type="button" class="btn btn-outline-danger remove-lesson" 
+                            onclick="removeLesson(this)">×</button>
+                    </div>
+                `;
+            container.appendChild(newLesson);
+
+            // Focus sur le nouveau champ de nom
+            newLesson.querySelector('input[type="text"]').focus();
+        }
+
+        // Fonction pour supprimer un champ de matière
+        function removeLesson(button) {
+            const lessonItem = button.closest('.lesson-item');
+            if (lessonItem) {
+                lessonItem.remove();
+            }
+        }
+    </script>
+</body>
+
+{% endblock content %}
