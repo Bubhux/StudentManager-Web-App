@@ -7,38 +7,59 @@
     .btn-custom-hover:hover {
         color: #c7c7c7 !important;
     }
+
+    .btn-custom-padding {
+        padding: 0.1rem 0.5rem;
+    }
+
     .table-hover tbody tr:hover {
         background-color: rgba(0, 0, 0, 0.075);
     }
+
     .card {
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
     .pagination .page-item .page-link {
-        color: #252525;            /* Couleur du texte */
-        background-color: #c3c3c3; /* Fond des boutons inactifs */
-        border-color: #6f6f6f;     /* Couleur de la bordure */
-        transition: all 0.3s ease;   /* Animation fluide */
-        outline: none !important;    /* Désactive le contour bleu */
-        box-shadow: none !important; /* Supprime l'ombre/glow du focus */
+        color: #252525;
+        /* Couleur du texte */
+        background-color: #c3c3c3;
+        /* Fond des boutons inactifs */
+        border-color: #6f6f6f;
+        /* Couleur de la bordure */
+        transition: all 0.3s ease;
+        /* Animation fluide */
+        outline: none !important;
+        /* Désactive le contour bleu */
+        box-shadow: none !important;
+        /* Supprime l'ombre/glow du focus */
     }
 
     .pagination .page-item:hover .page-link {
-        background-color: #e9ecef; /* Fond au survol */
-        border-color: #404040;     /* Bordure au survol */
-        color: #212529;            /* Texte au survol */
+        background-color: #e9ecef;
+        /* Fond au survol */
+        border-color: #404040;
+        /* Bordure au survol */
+        color: #212529;
+        /* Texte au survol */
     }
 
     .pagination .page-item.active .page-link {
-        background-color: #212529; /* Fond du bouton actif */
-        border-color: #212529;     /* Bordure du bouton actif */
-        color: white;              /* Texte du bouton actif */
+        background-color: #212529;
+        /* Fond du bouton actif */
+        border-color: #212529;
+        /* Bordure du bouton actif */
+        color: white;
+        /* Texte du bouton actif */
     }
 
     .pagination .page-item.disabled .page-link {
-        background-color: #c3c3c3; /* Fond des boutons désactivés */
-        border-color: #6f6f6f;     /* Bordure des boutons désactivés */
-        color: #252525;            /* Texte des boutons désactivés */
+        background-color: #c3c3c3;
+        /* Fond des boutons désactivés */
+        border-color: #6f6f6f;
+        /* Bordure des boutons désactivés */
+        color: #252525;
+        /* Texte des boutons désactivés */
     }
 
     .per-page-selector {
@@ -46,6 +67,7 @@
         display: inline-block;
         margin-left: 15px;
     }
+
     .pagination-container {
         display: flex;
         justify-content: space-between;
@@ -63,11 +85,12 @@
                 <div class="col-md-10">
                     <div class="card">
                         <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-                            <h4 class="mb-0 flex-grow-1 text-center">Liste des classes triées par ordre alphabétique</h4>
+                            <h4 class="mb-0 flex-grow-1 text-center">Liste des classes triées par ordre alphabétique
+                            </h4>
                             <span class="badge bg-light text-dark">
                                 Total : {{ page_obj.paginator.count }} classes
                             </span>
-                        </div>                        
+                        </div>
 
                         <div class="card-body">
                             {% if has_classrooms %}
@@ -78,6 +101,7 @@
                                             <th scope="col">Nom de la classe</th>
                                             <th scope="col">Places disponibles</th>
                                             <th scope="col">Nombre d'étudiants</th>
+                                            <th scope="col">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -86,17 +110,76 @@
                                             <td>{{ classroom.name }}</td>
                                             <td>{{ classroom.places_available }}</td>
                                             <td>{{ classroom.student_count }}</td>
+                                            <td>
+                                                <button type="button"
+                                                    class="btn btn-secondary btn-custom-hover btn-custom-padding"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#studentsModal{{ classroom.id }}">
+                                                    Voir les élèves
+                                                </button>
+                                            </td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>
                                 </table>
                             </div>
 
+                            <!-- Modal pour chaque classe -->
+                            {% for classroom in classrooms %}
+                            <div class="modal fade" id="studentsModal{{ classroom.id }}" tabindex="-1"
+                                aria-labelledby="studentsModalLabel{{ classroom.id }}" aria-hidden="true">
+                                <div class="modal-dialog modal-lg" style="margin-top: 12rem;">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="studentsModalLabel{{ classroom.id }}">
+                                                Élèves de la classe : {{ classroom.name }}
+                                            </h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            {% if classroom.students %}
+                                            <div class="table-responsive">
+                                                <table class="table table-hover">
+                                                    <thead class="table-dark">
+                                                        <tr>
+                                                            <th scope="col">Prénom</th>
+                                                            <th scope="col">Nom</th>
+                                                            <th scope="col">Email</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for student in classroom.students %}
+                                                        <tr>
+                                                            <td>{{ student.first_name }}</td>
+                                                            <td>{{ student.last_name }}</td>
+                                                            <td>{{ student.email|default:"—" }}</td>
+                                                        </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            {% else %}
+                                            <div class="alert alert-info mb-0" role="alert">
+                                                Aucun élève n'est inscrit dans cette classe.
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary"
+                                                data-bs-dismiss="modal">Fermer</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+
                             <div class="pagination-container mt-4">
                                 <div>
                                     <form method="GET" class="form-inline">
                                         <label for="items_per_page" class="me-2">Afficher :</label>
-                                        <select name="items_per_page" id="items_per_page" class="form-select form-select-sm" onchange="this.form.submit()">
+                                        <select name="items_per_page" id="items_per_page"
+                                            class="form-select form-select-sm" onchange="this.form.submit()">
                                             {% for option in per_page_options %}
                                             <option value="{{ option }}" {% if items_per_page == option %}selected{% endif %}>{{ option }}</option>
                                             {% endfor %}
@@ -109,12 +192,15 @@
                                     <ul class="pagination mb-0">
                                         {% if page_obj.has_previous %}
                                         <li class="page-item">
-                                            <a class="page-link" href="?page=1&items_per_page={{ items_per_page }}" aria-label="First">
+                                            <a class="page-link" href="?page=1&items_per_page={{ items_per_page }}"
+                                                aria-label="First">
                                                 <span aria-hidden="true">&laquo;&laquo;</span>
                                             </a>
                                         </li>
                                         <li class="page-item">
-                                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}&items_per_page={{ items_per_page }}" aria-label="Previous">
+                                            <a class="page-link"
+                                                href="?page={{ page_obj.previous_page_number }}&items_per_page={{ items_per_page }}"
+                                                aria-label="Previous">
                                                 <span aria-hidden="true">&laquo;</span>
                                             </a>
                                         </li>
@@ -128,12 +214,16 @@
 
                                         {% if page_obj.has_next %}
                                         <li class="page-item">
-                                            <a class="page-link" href="?page={{ page_obj.next_page_number }}&items_per_page={{ items_per_page }}" aria-label="Next">
+                                            <a class="page-link"
+                                                href="?page={{ page_obj.next_page_number }}&items_per_page={{ items_per_page }}"
+                                                aria-label="Next">
                                                 <span aria-hidden="true">&raquo;</span>
                                             </a>
                                         </li>
                                         <li class="page-item">
-                                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&items_per_page={{ items_per_page }}" aria-label="Last">
+                                            <a class="page-link"
+                                                href="?page={{ page_obj.paginator.num_pages }}&items_per_page={{ items_per_page }}"
+                                                aria-label="Last">
                                                 <span aria-hidden="true">&raquo;&raquo;</span>
                                             </a>
                                         </li>

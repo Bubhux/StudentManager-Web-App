@@ -1,0 +1,185 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style>
+    .btn-custom-hover:hover {
+        color: #c7c7c7 !important;
+    }
+
+    .card {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header-danger {
+        background-color: #8b1a1a !important;
+        border-bottom: 2px solid #6b1414 !important;
+    }
+
+    .alert-confirmation-danger {
+        background-color: #8b1a1a;
+        color: white;
+        border-color: #6b1414;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 20px 0;
+    }
+
+    .alert-confirmation-danger i {
+        color: white;
+    }
+
+    .alert-confirmation-danger strong {
+        color: white;
+    }
+
+    .students-list {
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+        border: 1px solid #dee2e6;
+    }
+
+    .student-item {
+        padding: 8px 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .student-item:last-child {
+        border-bottom: none;
+    }
+
+    .student-item strong {
+        color: #ffffff;
+    }
+
+    .btn-confirmer {
+        background-color: #8b1a1a;
+        border-color: #8b1a1a;
+        color: white;
+        font-weight: 500;
+    }
+
+    .btn-confirmer:hover {
+        background-color: #6b1414;
+        border-color: #5a1010;
+        color: white;
+    }
+
+    .btn-confirmer:focus {
+        box-shadow: 0 0 0 0.2rem rgba(139, 26, 26, 0.5);
+    }
+
+    .btn-annuler {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        color: white;
+        font-weight: 500;
+    }
+
+    .btn-annuler:hover {
+        background-color: #5a6268;
+        border-color: #545b62;
+        color: white;
+    }
+
+    .badge {
+        font-size: 0.85rem;
+        padding: 0.4rem 0.6rem;
+    }
+
+    .badge.bg-info {
+        background-color: #17a2b8 !important;
+        color: white !important;
+    }
+</style>
+
+<body class="d-flex align-items-center py-4 bg-body-tertiary">
+    <main class="container text-center">
+        <div class="container mt-5">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card">
+                        <!-- En-tête rouge très foncé -->
+                        <div
+                            class="card-header card-header-danger text-white d-flex justify-content-between align-items-center">
+                            <h4 class="mb-0 flex-grow-1 text-center">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                Confirmation de suppression multiple
+                            </h4>
+                        </div>
+
+                        <div class="card-body">
+                            {% if messages %}
+                            {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
+                            </div>
+                            {% endfor %}
+                            {% endif %}
+
+                            <!-- Bannière d'avertissement -->
+                            <div class="alert alert-warning" role="alert">
+                                <i class="bi bi-exclamation-circle me-2"></i>
+                                <strong>Attention :</strong> Cette action est irréversible.
+                                Tous les étudiants sélectionnés seront supprimés définitivement.
+                            </div>
+
+                            <div class="students-list text-start">
+                                <h5 class="mb-3">
+                                    <i class="bi bi-people me-2"></i>
+                                    Étudiants à supprimer ({{ students|length }}) :
+                                </h5>
+
+                                {% for student in students %}
+                                <div class="student-item">
+                                    <strong>{{ student.first_name }} {{ student.last_name }}</strong>
+                                    {% if student.email %}
+                                    <span class="text-muted ms-2">{{ student.email }}</span>
+                                    {% endif %}
+                                    {% if student.classroom %}
+                                    <span class="badge bg-info text-dark ms-2">
+                                        {{ student.classroom.classroom_name }}
+                                    </span>
+                                    {% endif %}
+                                    <span class="badge bg-secondary ms-1">
+                                        {{ student.studentlesson_set.count }} matière(s)
+                                    </span>
+                                </div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Alerte de confirmation en rouge très foncé -->
+                            <div class="alert-confirmation-danger" role="alert">
+                                <i class="bi bi-trash3 me-2"></i>
+                                <strong>Confirmez-vous la suppression de {{ students|length }} étudiant(s) ?</strong>
+                            </div>
+
+                            <form method="post" action="{% url 'delete_multiple_confirm' %}">
+                                {% csrf_token %}
+                                {% for student in students %}
+                                <input type="hidden" name="student_ids" value="{{ student.id }}">
+                                {% endfor %}
+                                <div class="d-flex justify-content-center gap-3 mt-4">
+                                    <a href="{% url 'delete_student' %}" class="btn btn-annuler btn-lg">
+                                        <i class="bi bi-x-circle me-2"></i>Annuler
+                                    </a>
+                                    <button type="submit" class="btn btn-confirmer btn-lg">
+                                        <i class="bi bi-trash3 me-2"></i>Confirmer la suppression
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
+</body>
+
+{% endblock content %}

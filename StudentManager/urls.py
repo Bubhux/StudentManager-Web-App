@@ -26,10 +26,16 @@ from classroom.views import (
 )
 
 from student.views import (
-    student_home_view, display_students_view, add_student_view,
-    add_subject_to_student_view, update_student_grades_view,
-    update_student_info_view, calculate_student_average_view,
-    delete_student_view
+    student_home_view,
+    display_students_view,
+    add_student_view,
+    add_subject_to_student_view,
+    update_student_grades_view,
+    update_student_info_view,
+    calculate_student_average_view,
+    delete_student_view,
+    delete_multiple_students_view,
+    delete_multiple_confirm_view
 )
 
 
@@ -48,7 +54,8 @@ urlpatterns = [
     path('classroom/add/', add_classroom_view, name='add_classroom'),
 
     path('classroom/update/', update_classroom_info_view, name='update_classroom_info'),
-    path('classroom/update-classroom-info/<int:classroom_id>/', update_classroom_info_view, name='classroom_update_detail'),
+    path('classroom/update-classroom-info/<int:classroom_id>/',
+         update_classroom_info_view, name='classroom_update_detail'),
 
     path('classroom/add-students/', add_students_to_classroom_view, name='add_students_to_classroom'),
     path('classroom/delete-students/', delete_students_from_classroom_view, name='delete_students_from_classroom'),
@@ -67,5 +74,11 @@ urlpatterns = [
 
     path('student/calculate-student-average/', calculate_student_average_view, name='calculate_student_average'),
 
+    # URL unique avec paramètre optionnel
     path('student/delete-student/', delete_student_view, name='delete_student'),
+    path('student/delete-student/<int:student_id>/', delete_student_view, name='delete_student'),
+
+    # Routes pour la suppression multiple
+    path('student/delete-multiple-students/', delete_multiple_students_view, name='delete_multiple_students'),
+    path('student/delete-multiple-confirm/', delete_multiple_confirm_view, name='delete_multiple_confirm'),
 ]
