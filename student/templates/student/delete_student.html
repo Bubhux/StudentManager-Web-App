@@ -1,0 +1,213 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style>
+    .btn-custom-hover:hover {
+        color: #c7c7c7 !important;
+    }
+
+    .card {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header-danger {
+        background-color: #8b1a1a !important;
+        border-bottom: 2px solid #6b1414 !important;
+    }
+
+    .alert-confirmation-danger {
+        background-color: #8b1a1a;
+        color: white;
+        border-color: #6b1414;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 20px 0;
+    }
+
+    .alert-confirmation-danger i {
+        color: white;
+    }
+
+    .alert-confirmation-danger strong {
+        color: white;
+    }
+
+    .student-info {
+
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+        border: 1px solid #dee2e6;
+    }
+
+    .student-info-item {
+        padding: 8px 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .student-info-item:last-child {
+        border-bottom: none;
+    }
+
+    .btn-confirmer {
+        background-color: #8b1a1a;
+        border-color: #8b1a1a;
+        color: white;
+        font-weight: 500;
+    }
+
+    .btn-confirmer:hover {
+        background-color: #6b1414;
+        border-color: #5a1010;
+        color: white;
+    }
+
+    .btn-confirmer:focus {
+        box-shadow: 0 0 0 0.2rem rgba(139, 26, 26, 0.5);
+    }
+
+    .btn-annuler {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        color: white;
+        font-weight: 500;
+    }
+
+    .btn-annuler:hover {
+        background-color: #5a6268;
+        border-color: #545b62;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background-color: #5a6268;
+        border-color: #545b62;
+    }
+
+    .alert-warning i {
+        color: #856404;
+    }
+
+    .badge {
+        font-size: 0.85rem;
+        padding: 0.4rem 0.6rem;
+    }
+
+    .text-muted {
+        color: #6c757d !important;
+    }
+</style>
+
+<body class="d-flex align-items-center py-4 bg-body-tertiary">
+    <main class="container text-center">
+        <div class="container mt-5">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card">
+                        <!-- En-tête rouge très foncé -->
+                        <div
+                            class="card-header card-header-danger text-white d-flex justify-content-between align-items-center">
+                            <h4 class="mb-0 flex-grow-1 text-center">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                Confirmation de suppression
+                            </h4>
+                        </div>
+
+                        <div class="card-body">
+                            {% if messages %}
+                            {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
+                            </div>
+                            {% endfor %}
+                            {% endif %}
+
+                            <!-- Bannière d'avertissement -->
+                            <div class="alert alert-warning" role="alert">
+                                <i class="bi bi-exclamation-circle me-2"></i>
+                                <strong>Attention :</strong> Cette action est irréversible.
+                                Toutes les données liées à cet étudiant seront supprimées définitivement.
+                            </div>
+
+                            <div class="student-info text-start">
+                                <h5 class="mb-3">Informations de l'étudiant :</h5>
+
+                                <div class="student-info-item">
+                                    <strong>Nom complet :</strong>
+                                    {{ student.first_name }} {{ student.last_name }}
+                                </div>
+
+                                <div class="student-info-item">
+                                    <strong>Email :</strong>
+                                    {% if student.email %}
+                                    {{ student.email }}
+                                    {% else %}
+                                    <span class="text-muted">Non renseigné</span>
+                                    {% endif %}
+                                </div>
+
+                                <div class="student-info-item">
+                                    <strong>Classe :</strong>
+                                    {% if student.classroom %}
+                                    {{ student.classroom.classroom_name }}
+                                    {% else %}
+                                    <span class="text-muted">Aucune classe attribuée</span>
+                                    {% endif %}
+                                </div>
+
+                                <div class="student-info-item">
+                                    <strong>Nombre de matières :</strong>
+                                    {{ student.studentlesson_set.count }}
+                                </div>
+
+                                {% if student.studentlesson_set.all %}
+                                <div class="student-info-item">
+                                    <strong>Matières :</strong>
+                                    <ul class="list-unstyled mt-2 mb-0">
+                                        {% for student_lesson in student.studentlesson_set.all %}
+                                        <li>
+                                            • {{ student_lesson.lesson.name }}
+                                            {% if student_lesson.grade %}
+                                            <span class="badge bg-info text-dark ms-2">
+                                                Note : {{ student_lesson.grade }}/20
+                                            </span>
+                                            {% endif %}
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Alerte de confirmation en rouge très foncé -->
+                            <div class="alert-confirmation-danger" role="alert">
+                                <i class="bi bi-trash3 me-2"></i>
+                                <strong>Confirmez-vous la suppression de cet étudiant ?</strong>
+                            </div>
+
+                            <form method="post" action="{% url 'delete_student' student.id %}">
+                                {% csrf_token %}
+                                <div class="d-flex justify-content-center gap-3 mt-4">
+                                    <a href="{% url 'delete_student' %}" class="btn btn-annuler btn-lg">
+                                        <i class="bi bi-x-circle me-2"></i>Annuler
+                                    </a>
+                                    <button type="submit" class="btn btn-confirmer btn-lg">
+                                        <i class="bi bi-trash3 me-2"></i>Confirmer la suppression
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
+</body>
+
+{% endblock content %}

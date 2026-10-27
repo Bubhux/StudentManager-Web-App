@@ -11,6 +11,7 @@ from classroom.models import Classroom
 def student_home_view(request):
     return render(request, 'student/student.html')
 
+
 def display_students_view(request):
     try:
         items_per_page = int(request.GET.get('items_per_page', 5))
@@ -37,6 +38,7 @@ def display_students_view(request):
         'per_page_options': [5, 10, 50, 100]
     }
     return render(request, 'student/display_students.html', context)
+
 
 def add_student_view(request):
     if request.method == 'POST':
@@ -94,11 +96,14 @@ def add_student_view(request):
         'lesson_formset': lesson_formset
     })
 
+
 def add_subject_to_student_view(request):
     return render(request, 'student/add_subject_to_student.html')
 
+
 def update_student_grades_view(request):
     return render(request, 'student/update_student_grades.html')
+
 
 def update_student_info_view(request, student_id=None):
     per_page_options = [5, 10, 50, 100]
@@ -207,6 +212,7 @@ def update_student_info_view(request, student_id=None):
     }
     return render(request, 'student/update_student_info.html', context)
 
+
 def calculate_student_average_view(request):
     students = Student.objects.all() \
         .order_by('last_name', 'first_name') \
@@ -233,11 +239,11 @@ def calculate_student_average_view(request):
 
     # Gestion de la pagination
     try:
-        items_per_page = int(request.GET.get('items_per_page', 10))
+        items_per_page = int(request.GET.get('items_per_page', 5))
         if items_per_page not in [5, 10, 50, 100]:
-            items_per_page = 10
+            items_per_page = 5
     except (ValueError, TypeError):
-        items_per_page = 10
+        items_per_page = 5
 
     paginator = Paginator(students_with_averages, items_per_page)
     page_number = request.GET.get('page')
@@ -255,5 +261,123 @@ def calculate_student_average_view(request):
 
     return render(request, 'student/calculate_student_average.html', context)
 
-def delete_student_view(request):
-    return render(request, 'student/delete_student.html')
+
+def delete_student_view(request, student_id=None):
+    """
+    Vue pour supprimer un étudiant.
+    - Sans student_id : Affiche la liste des étudiants avec pagination
+    - Avec student_id : Affiche la confirmation ou supprime
+    """
+    # Cas 1: Pas d'ID - Afficher la liste des étudiants avec pagination
+    if not student_id:
+        try:
+            items_per_page = int(request.GET.get('items_per_page', 5))
+            if items_per_page not in [5, 10, 50, 100]:
+                items_per_page = 5
+        except (ValueError, TypeError):
+            items_per_page = 5
+
+        students = Student.objects.all() \
+            .order_by('last_name', 'first_name') \
+            .select_related('classroom') \
+            .prefetch_related('studentlesson_set')
+
+        paginator = Paginator(students, items_per_page)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+
+        context = {
+            'page_obj': page_obj,
+            'has_students': page_obj.object_list.exists(),
+            'items_per_page': items_per_page,
+            'per_page_options': [5, 10, 50, 100]
+        }
+        return render(request, 'student/delete_student_list.html', context)
+
+    # Cas 2: ID fourni - Traiter la suppression
+    student = get_object_or_404(Student, id=student_id)
+
+    if request.method == 'POST':
+        # Sauvegarde du nom pour le message de confirmation
+        student_name = f"{student.first_name} {student.last_name}"
+
+        # Supprimer toutes les relations StudentLesson avant de supprimer l'étudiant
+        StudentLesson.objects.filter(student=student).delete()
+
+        # Supprimer l'étudiant
+        student.delete()
+
+        messages.success(
+            request,
+            f"L'étudiant {student_name} a été supprimé avec succès."
+        )
+        return redirect('delete_student')
+
+    context = {
+        'student': student,
+    }
+    return render(request, 'student/delete_student.html', context)
+
+
+def delete_multiple_students_view(request):
+    """
+    Vue pour afficher la confirmation de suppression multiple.
+    """
+    if request.method == 'POST':
+        student_ids = request.POST.getlist('student_ids')
+
+        if not student_ids:
+            messages.warning(request, "Aucun étudiant sélectionné pour la suppression.")
+            return redirect('delete_student')
+
+        # Récupérer les étudiants à supprimer
+        students_to_delete = Student.objects.filter(id__in=student_ids)
+        count = students_to_delete.count()
+
+        if count == 0:
+            messages.warning(request, "Aucun étudiant trouvé avec les IDs sélectionnés.")
+            return redirect('delete_student')
+
+        # Afficher la page de confirmation
+        context = {
+            'students': students_to_delete,
+        }
+        return render(request, 'student/delete_multiple_confirm.html', context)
+
+    # Si GET, rediriger vers la liste
+    return redirect('delete_student')
+
+
+def delete_multiple_confirm_view(request):
+    """
+    Vue pour confirmer et exécuter la suppression multiple.
+    """
+    if request.method == 'POST':
+        student_ids = request.POST.getlist('student_ids')
+
+        if not student_ids:
+            messages.warning(request, "Aucun étudiant sélectionné pour la suppression.")
+            return redirect('delete_student')
+
+        # Récupérer les étudiants à supprimer
+        students_to_delete = Student.objects.filter(id__in=student_ids)
+        count = students_to_delete.count()
+
+        if count == 0:
+            messages.warning(request, "Aucun étudiant trouvé avec les IDs sélectionnés.")
+            return redirect('delete_student')
+
+        # Supprimer les relations StudentLesson
+        StudentLesson.objects.filter(student__in=students_to_delete).delete()
+
+        # Supprimer les étudiants
+        students_to_delete.delete()
+
+        messages.success(
+            request,
+            f"{count} étudiant(s) ont été supprimés avec succès."
+        )
+        return redirect('delete_student')
+
+    # Si GET, rediriger vers la liste
+    return redirect('delete_student')

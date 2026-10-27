@@ -10,17 +10,16 @@ def classroom_home_view(request):
     return render(request, 'classroom/classroom.html')
 
 def display_classrooms_view(request):
-    # Récupére le nombre d'éléments par page (avec validation)
+    # Récupère le nombre d'éléments par page (avec validation)
     try:
         items_per_page = int(request.GET.get('items_per_page', 5))
-        # Limite les choix possibles aux valeurs prédéfinies
         if items_per_page not in [5, 10, 50, 100]:
             items_per_page = 5
     except (ValueError, TypeError):
         items_per_page = 5
 
-    # Optimisation: Utilise select_related/prefetch_related si nécessaire
-    classrooms = Classroom.objects.all().order_by('classroom_name')
+    # Optimisation : prefetch_related pour éviter le problème N+1 sur les étudiants
+    classrooms = Classroom.objects.all().order_by('classroom_name').prefetch_related('students')
 
     # Pagination directement sur le QuerySet (plus efficace)
     paginator = Paginator(classrooms, items_per_page)
@@ -30,19 +29,21 @@ def display_classrooms_view(request):
     # Prépare les données pour le template
     classrooms_data = [
         {
+            'id': classroom.id,
             'name': classroom.classroom_name,
             'places_available': classroom.number_of_places_available,
-            'student_count': classroom.student_count
+            'student_count': classroom.student_count,
+            'students': classroom.students.all().order_by('first_name', 'last_name'),
         }
-        for classroom in page_obj.object_list  # Utiliser object_list pour éviter double requête
+        for classroom in page_obj.object_list
     ]
 
     context = {
         'page_obj': page_obj,
-        'classrooms': classrooms_data,          # Passe les données préparées
-        'has_classrooms': classrooms.exists(),  # Plus efficace que len()
+        'classrooms': classrooms_data,
+        'has_classrooms': classrooms.exists(),
         'items_per_page': items_per_page,
-        'per_page_options': [5, 10, 50, 100]    # Pour garder une seule source de vérité
+        'per_page_options': [5, 10, 50, 100]
     }
 
     return render(request, 'classroom/display_classrooms.html', context)

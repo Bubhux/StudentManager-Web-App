@@ -4,9 +4,13 @@ __pycache__/
 
 # Exclure le dossier .vscode
 .vscode/
+.VSCodeCounter
 
-# Exclure le dossier venv (environnement virtuel Python)
+# Exclure le dossier env (environnement virtuel Python)
 env/
+
+# Exclure le fichier env
+.env
 
 # Exclure les fichiers et dossiers générés par Pytest
 .pytest_cache/
