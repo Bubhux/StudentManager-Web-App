@@ -103,49 +103,54 @@
                                             <td>{{ classroom.number_of_places_available }}</td>
                                             <td>{{ classroom.student_count }}</td>
                                             <td>
-                                                <button type="button" class="btn btn-secondary btn-custom-hover btn-custom-padding" 
-                                                    data-bs-toggle="modal" 
+                                                <button type="button" class="btn btn-secondary btn-custom-hover btn-custom-padding"
+                                                    data-bs-toggle="modal"
                                                     data-bs-target="#editModal{{ classroom.id }}">
                                                     Modifier
                                                 </button>
                                             </td>
                                         </tr>
-
-                                        <!-- Modal pour chaque classe -->
-                                        <div class="modal fade" id="editModal{{ classroom.id }}" tabindex="-1" aria-labelledby="editModalLabel{{ classroom.id }}" aria-hidden="true">
-                                            <div class="modal-dialog" style="margin-top: 12rem;">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="editModalLabel{{ classroom.id }}">Modifier la classe: {{ classroom.classroom_name }}</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                    </div>
-                                                    <form method="post" action="{% url 'classroom_update_detail' classroom.id %}">
-                                                        {% csrf_token %}
-                                                        <input type="hidden" name="items_per_page" value="{{ items_per_page }}">
-                                                        <div class="modal-body">
-                                                            <div class="mb-3">
-                                                                <label for="classroom_name{{ classroom.id }}" class="form-label">Nom de la classe</label>
-                                                                <input type="text" class="form-control" id="classroom_name{{ classroom.id }}" 
-                                                                    name="classroom_name" value="{{ classroom.classroom_name }}" required>
-                                                            </div>
-                                                            <div class="mb-3">
-                                                                <label for="number_of_places_available{{ classroom.id }}" class="form-label">Places disponibles</label>
-                                                                <input type="number" class="form-control" id="number_of_places_available{{ classroom.id }}" 
-                                                                    name="number_of_places_available" value="{{ classroom.number_of_places_available }}" min="0" required>
-                                                            </div>
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                                                            <button type="submit" class="btn btn-secondary btn-custom-hover">Enregistrer</button>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
                                         {% endfor %}
                                     </tbody>
                                 </table>
                             </div>
+
+                            <!-- Modal pour chaque classe -->
+                            {% for classroom in page_obj %}
+                            <div class="modal fade" id="editModal{{ classroom.id }}" tabindex="-1"
+                                aria-labelledby="editModalLabel{{ classroom.id }}" aria-hidden="true">
+                                <div class="modal-dialog" style="margin-top: 12rem;">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="editModalLabel{{ classroom.id }}">
+                                                Modifier la classe: {{ classroom.classroom_name }}
+                                            </h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <form method="post" action="{% url 'classroom_update_detail' classroom.id %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="items_per_page" value="{{ items_per_page }}">
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <label for="classroom_name{{ classroom.id }}" class="form-label">Nom de la classe</label>
+                                                    <input type="text" class="form-control" id="classroom_name{{ classroom.id }}"
+                                                        name="classroom_name" value="{{ classroom.classroom_name }}" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="number_of_places_available{{ classroom.id }}" class="form-label">Places disponibles</label>
+                                                    <input type="number" class="form-control" id="number_of_places_available{{ classroom.id }}"
+                                                        name="number_of_places_available" value="{{ classroom.number_of_places_available }}" min="0" required>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                <button type="submit" class="btn btn-secondary btn-custom-hover">Enregistrer</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
 
                             <div class="pagination-container mt-4 d-flex justify-content-between align-items-center">
                                 <div>
