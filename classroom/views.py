@@ -4,13 +4,51 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from .forms import ClassroomForm
 from .models import Classroom
+from django.http import JsonResponse
+from django.template.loader import render_to_string
 
+
+def classroom_students_partial_view(request, classroom_id):
+    """
+    Renvoie un fragment HTML paginé contenant les élèves d'une classe.
+    Utilisé en AJAX pour la pagination dans la modale.
+    """
+    classroom = get_object_or_404(Classroom, id=classroom_id)
+
+    # Nombre d'élèves par page (validé)
+    try:
+        students_per_page = int(request.GET.get('students_per_page', 5))
+        if students_per_page not in [5, 10, 20, 50]:
+            students_per_page = 5
+    except (ValueError, TypeError):
+        students_per_page = 5
+
+    # Récupération et tri des élèves
+    students_qs = classroom.students.all().order_by('last_name', 'first_name')
+
+    # Pagination
+    paginator = Paginator(students_qs, students_per_page)
+    page_number = request.GET.get('students_page', 1)
+    students_page_obj = paginator.get_page(page_number)
+
+    context = {
+        'classroom': classroom,
+        'students_page_obj': students_page_obj,
+        'students_per_page': students_per_page,
+        'students_per_page_options': [5, 10, 20, 50],
+    }
+
+    html = render_to_string(
+        'classroom/students_modal_content.html',
+        context,
+        request=request
+    )
+    return JsonResponse({'html': html})
 
 def classroom_home_view(request):
     return render(request, 'classroom/classroom.html')
 
 def display_classrooms_view(request):
-    # Récupère le nombre d'éléments par page (avec validation)
     try:
         items_per_page = int(request.GET.get('items_per_page', 5))
         if items_per_page not in [5, 10, 50, 100]:
@@ -18,22 +56,18 @@ def display_classrooms_view(request):
     except (ValueError, TypeError):
         items_per_page = 5
 
-    # Optimisation : prefetch_related pour éviter le problème N+1 sur les étudiants
-    classrooms = Classroom.objects.all().order_by('classroom_name').prefetch_related('students')
+    classrooms = Classroom.objects.all().order_by('classroom_name')
 
-    # Pagination directement sur le QuerySet (plus efficace)
     paginator = Paginator(classrooms, items_per_page)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    # Prépare les données pour le template
     classrooms_data = [
         {
             'id': classroom.id,
             'name': classroom.classroom_name,
             'places_available': classroom.number_of_places_available,
             'student_count': classroom.student_count,
-            'students': classroom.students.all().order_by('first_name', 'last_name'),
         }
         for classroom in page_obj.object_list
     ]
