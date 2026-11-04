@@ -2,48 +2,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.core.paginator import Paginator
-from .forms import ClassroomForm
-from .models import Classroom
 from django.http import JsonResponse
 from django.template.loader import render_to_string
 
+from .forms import ClassroomForm
+from .models import Classroom
 
-def classroom_students_partial_view(request, classroom_id):
-    """
-    Renvoie un fragment HTML paginé contenant les élèves d'une classe.
-    Utilisé en AJAX pour la pagination dans la modale.
-    """
-    classroom = get_object_or_404(Classroom, id=classroom_id)
-
-    # Nombre d'élèves par page (validé)
-    try:
-        students_per_page = int(request.GET.get('students_per_page', 5))
-        if students_per_page not in [5, 10, 20, 50]:
-            students_per_page = 5
-    except (ValueError, TypeError):
-        students_per_page = 5
-
-    # Récupération et tri des élèves
-    students_qs = classroom.students.all().order_by('last_name', 'first_name')
-
-    # Pagination
-    paginator = Paginator(students_qs, students_per_page)
-    page_number = request.GET.get('students_page', 1)
-    students_page_obj = paginator.get_page(page_number)
-
-    context = {
-        'classroom': classroom,
-        'students_page_obj': students_page_obj,
-        'students_per_page': students_per_page,
-        'students_per_page_options': [5, 10, 20, 50],
-    }
-
-    html = render_to_string(
-        'classroom/students_modal_content.html',
-        context,
-        request=request
-    )
-    return JsonResponse({'html': html})
 
 def classroom_home_view(request):
     return render(request, 'classroom/classroom.html')
@@ -81,6 +45,43 @@ def display_classrooms_view(request):
     }
 
     return render(request, 'classroom/display_classrooms.html', context)
+
+def classroom_students_partial_view(request, classroom_id):
+    """
+    Renvoie un fragment HTML paginé contenant les élèves d'une classe.
+    Utilisé en AJAX pour la pagination dans la modale.
+    """
+    classroom = get_object_or_404(Classroom, id=classroom_id)
+
+    # Nombre d'élèves par page (validé)
+    try:
+        students_per_page = int(request.GET.get('students_per_page', 5))
+        if students_per_page not in [5, 10, 20, 50]:
+            students_per_page = 5
+    except (ValueError, TypeError):
+        students_per_page = 5
+
+    # Récupération et tri des élèves
+    students_qs = classroom.students.all().order_by('last_name', 'first_name')
+
+    # Pagination
+    paginator = Paginator(students_qs, students_per_page)
+    page_number = request.GET.get('students_page', 1)
+    students_page_obj = paginator.get_page(page_number)
+
+    context = {
+        'classroom': classroom,
+        'students_page_obj': students_page_obj,
+        'students_per_page': students_per_page,
+        'students_per_page_options': [5, 10, 20, 50],
+    }
+
+    html = render_to_string(
+        'classroom/students_modal_content.html',
+        context,
+        request=request
+    )
+    return JsonResponse({'html': html})
 
 def add_classroom_view(request):
     if request.method == 'POST':
