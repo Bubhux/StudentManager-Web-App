@@ -234,55 +234,65 @@
     <script src="/static/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-        
+
             const STUDENTS_PER_PAGE = 5;
-        
+
             // Charge la première page d'élèves à l'ouverture de la modale
             document.querySelectorAll('.modal[id^="studentsModal"]').forEach(function (modalEl) {
                 modalEl.addEventListener('show.bs.modal', function () {
                     const modalBody = modalEl.querySelector('.modal-body');
                     const url = modalEl.dataset.studentsUrl + '?students_page=1&students_per_page=' + STUDENTS_PER_PAGE;
-        
-                    // Évite de recharger si déjà chargé
+
                     if (modalBody.dataset.loaded === '1') return;
-        
+
                     modalBody.innerHTML = '<div class="text-center py-3"><div class="spinner-border" role="status"><span class="visually-hidden">Chargement...</span></div></div>';
-        
+
                     fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-                        .then(function (response) { return response.json(); })
+                        .then(function (response) {
+                            if (!response.ok) {
+                                throw new Error('HTTP ' + response.status);
+                            }
+                            return response.json();
+                        })
                         .then(function (data) {
                             modalBody.innerHTML = data.html;
                             modalBody.dataset.loaded = '1';
                         })
-                        .catch(function () {
+                        .catch(function (error) {
+                            console.error('Erreur de chargement:', error);
                             modalBody.innerHTML = '<div class="alert alert-danger mb-0">Erreur de chargement.</div>';
                         });
                 });
-        
-                // Réinitialise le flag à la fermeture (optionnel : recharge à chaque ouverture)
+
                 modalEl.addEventListener('hidden.bs.modal', function () {
                     const modalBody = modalEl.querySelector('.modal-body');
                     modalBody.dataset.loaded = '';
                 });
             });
-        
+
             // Gestion des clics sur les liens de pagination dans la modale
             document.addEventListener('click', function (e) {
                 const link = e.target.closest('.students-page-link');
                 if (!link) return;
                 e.preventDefault();
-        
+
                 const modalBody = link.closest('.modal-body');
                 const url = link.dataset.url;
-        
+
                 modalBody.innerHTML = '<div class="text-center py-3"><div class="spinner-border" role="status"><span class="visually-hidden">Chargement...</span></div></div>';
-        
+
                 fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-                    .then(function (response) { return response.json(); })
+                    .then(function (response) {
+                        if (!response.ok) {
+                            throw new Error('HTTP ' + response.status);
+                        }
+                        return response.json();
+                    })
                     .then(function (data) {
                         modalBody.innerHTML = data.html;
                     })
-                    .catch(function () {
+                    .catch(function (error) {
+                        console.error('Erreur de chargement:', error);
                         modalBody.innerHTML = '<div class="alert alert-danger mb-0">Erreur de chargement.</div>';
                     });
             });
@@ -298,17 +308,23 @@
                 modalBody.innerHTML = '<div class="text-center py-3"><div class="spinner-border" role="status"><span class="visually-hidden">Chargement...</span></div></div>';
 
                 fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-                    .then(function (response) { return response.json(); })
+                    .then(function (response) {
+                        if (!response.ok) {
+                            throw new Error('HTTP ' + response.status);
+                        }
+                        return response.json();
+                    })
                     .then(function (data) {
                         modalBody.innerHTML = data.html;
                     })
-                    .catch(function () {
+                    .catch(function (error) {
+                        console.error('Erreur de chargement:', error);
                         modalBody.innerHTML = '<div class="alert alert-danger mb-0">Erreur de chargement.</div>';
                     });
             });
-                    
+
         });
-        </script>
+    </script>
 </body>
 
 {% endblock content %}
