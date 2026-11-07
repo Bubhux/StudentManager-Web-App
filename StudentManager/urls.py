@@ -24,6 +24,10 @@ from classroom.views import (
     delete_students_from_classroom_view, calculate_classroom_average_view,
     delete_classroom_view,
     classroom_students_partial_view,
+    select_students_to_delete_view,
+    delete_student_from_classroom_view,
+    delete_multiple_students_from_classroom_view,
+    delete_multiple_students_from_classroom_confirm_view,
 )
 
 from student.views import (
@@ -57,6 +61,13 @@ urlpatterns = [
     path('classroom/update/', update_classroom_info_view, name='update_classroom_info'),
     path('classroom/update-classroom-info/<int:classroom_id>/',
          update_classroom_info_view, name='classroom_update_detail'),
+
+    # Nouvelles routes pour la suppression d'étudiants dans une classe
+    path('classroom/delete-students/', delete_students_from_classroom_view, name='delete_students_from_classroom'),
+    path('classroom/<int:classroom_id>/select-students/', select_students_to_delete_view, name='select_students_to_delete'),
+    path('classroom/<int:classroom_id>/delete-student/<int:student_id>/', delete_student_from_classroom_view, name='delete_student_from_classroom'),
+    path('classroom/<int:classroom_id>/delete-multiple-students/', delete_multiple_students_from_classroom_view, name='delete_multiple_students_from_classroom'),
+    path('classroom/<int:classroom_id>/delete-multiple-confirm/', delete_multiple_students_from_classroom_confirm_view, name='delete_multiple_students_from_classroom_confirm'),
 
     path('classroom/add-students/', add_students_to_classroom_view, name='add_students_to_classroom'),
     path('classroom/delete-students/', delete_students_from_classroom_view, name='delete_students_from_classroom'),
