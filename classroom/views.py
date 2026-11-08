@@ -229,17 +229,21 @@ def select_students_to_delete_view(request, classroom_id):
 
 def delete_student_from_classroom_view(request, classroom_id, student_id):
     """
-    Gère la suppression d'un seul étudiant d'une classe.
+    Gère le retrait d'un seul étudiant d'une classe.
     GET : affiche la page de confirmation
-    POST : effectue la suppression
+    POST : retire l'étudiant de la classe (sans le supprimer)
     """
     classroom = get_object_or_404(Classroom, id=classroom_id)
     student = get_object_or_404(Student, id=student_id)
 
     if request.method == 'POST':
         student_name = f"{student.first_name} {student.last_name}"
-        student.delete()
-        messages.success(request, f"L'étudiant {student_name} a été supprimé avec succès!")
+        # Retirer l'étudiant de la classe sans le supprimer
+        classroom.remove_student_classroom(student)
+        messages.success(
+            request,
+            f"L'étudiant {student_name} a été retiré de la classe {classroom.classroom_name} avec succès!"
+        )
         return redirect('select_students_to_delete', classroom_id=classroom.id)
 
     context = {
@@ -281,7 +285,8 @@ def delete_multiple_students_from_classroom_view(request, classroom_id):
 
 def delete_multiple_students_from_classroom_confirm_view(request, classroom_id):
     """
-    Affiche la page de confirmation et effectue la suppression multiple.
+    Affiche la page de confirmation et retire les étudiants de la classe.
+    Les étudiants ne sont PAS supprimés définitivement, seulement retirés de la classe.
     """
     classroom = get_object_or_404(Classroom, id=classroom_id)
 
@@ -299,7 +304,9 @@ def delete_multiple_students_from_classroom_confirm_view(request, classroom_id):
             return redirect('select_students_to_delete', classroom_id=classroom.id)
 
         count = students.count()
-        students.delete()
+        # Retirer les étudiants de la classe sans les supprimer
+        for student in students:
+            classroom.remove_student_classroom(student)
 
         # Nettoyer la session
         if 'students_to_delete' in request.session:
@@ -307,7 +314,10 @@ def delete_multiple_students_from_classroom_confirm_view(request, classroom_id):
         if 'classroom_id' in request.session:
             del request.session['classroom_id']
 
-        messages.success(request, f"{count} étudiant(s) ont été supprimés avec succès!")
+        messages.success(
+            request,
+            f"{count} étudiant(s) ont été retirés de la classe {classroom.classroom_name} avec succès!"
+        )
         return redirect('select_students_to_delete', classroom_id=classroom.id)
 
     # GET : afficher la confirmation
