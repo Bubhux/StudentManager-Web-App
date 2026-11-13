@@ -338,5 +338,136 @@ def delete_multiple_students_from_classroom_confirm_view(request, classroom_id):
 def calculate_classroom_average_view(request):
     return render(request, 'classroom/calculate_classroom_average.html')
 
-def delete_classroom_view(request):
-    return render(request, 'classroom/delete_classroom.html')
+def delete_classroom_view(request, classroom_id=None):
+    """
+    Gère la suppression d'une ou plusieurs classes.
+    - Sans ID : affiche la liste des classes avec sélection multiple
+    - Avec ID (GET) : affiche la page de confirmation pour une classe
+    - Avec ID (POST) : supprime la classe
+    """
+    # Si un ID est fourni, c'est une suppression unique
+    if classroom_id:
+        classroom = get_object_or_404(Classroom, id=classroom_id)
+        
+        if request.method == 'POST':
+            classroom_name = classroom.classroom_name
+            # D'abord retirer tous les étudiants de la classe (sans les supprimer)
+            for student in classroom.students.all():
+                student.classroom = None
+                student.save()
+            
+            # Puis supprimer la classe
+            classroom.delete()
+            
+            messages.success(
+                request,
+                f"La classe {classroom_name} a été supprimée avec succès!"
+            )
+            return redirect('delete_classroom')
+        
+        # GET : afficher la confirmation
+        context = {
+            'classroom': classroom,
+        }
+        return render(request, 'classroom/delete_classroom.html', context)
+    
+    # Pas d'ID : afficher la liste des classes
+    try:
+        items_per_page = int(request.GET.get('items_per_page', 5))
+        if items_per_page not in [5, 10, 50, 100]:
+            items_per_page = 5
+    except (ValueError, TypeError):
+        items_per_page = 5
+
+    classrooms = Classroom.objects.all().order_by('classroom_name')
+
+    paginator = Paginator(classrooms, items_per_page)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'page_obj': page_obj,
+        'has_classrooms': classrooms.exists(),
+        'items_per_page': items_per_page,
+        'per_page_options': [5, 10, 50, 100]
+    }
+
+    return render(request, 'classroom/delete_classroom_list.html', context)
+
+
+def delete_multiple_classrooms_view(request):
+    """
+    Gère la soumission du formulaire de suppression multiple.
+    Redirige vers la page de confirmation avec les IDs sélectionnés.
+    """
+    if request.method == 'POST':
+        classroom_ids = request.POST.getlist('classroom_ids')
+
+        if not classroom_ids:
+            messages.warning(request, "Aucune classe sélectionnée.")
+            return redirect('delete_classroom')
+
+        classrooms = Classroom.objects.filter(id__in=classroom_ids)
+
+        if not classrooms.exists():
+            messages.warning(request, "Aucune classe valide sélectionnée.")
+            return redirect('delete_classroom')
+
+        # Stocker les IDs dans la session pour la page de confirmation
+        request.session['classrooms_to_delete'] = list(classrooms.values_list('id', flat=True))
+
+        return redirect('delete_multiple_classrooms_confirm')
+
+    return redirect('delete_classroom')
+
+
+def delete_multiple_classrooms_confirm_view(request):
+    """
+    Affiche la page de confirmation et supprime les classes sélectionnées.
+    """
+    if request.method == 'POST':
+        classroom_ids = request.POST.getlist('classroom_ids')
+
+        if not classroom_ids:
+            messages.warning(request, "Aucune classe sélectionnée.")
+            return redirect('delete_classroom')
+
+        classrooms = Classroom.objects.filter(id__in=classroom_ids)
+
+        if not classrooms.exists():
+            messages.warning(request, "Aucune classe valide sélectionnée.")
+            return redirect('delete_classroom')
+
+        count = classrooms.count()
+
+        # Pour chaque classe : retirer les étudiants puis supprimer la classe
+        for classroom in classrooms:
+            for student in classroom.students.all():
+                student.classroom = None
+                student.save()
+            classroom.delete()
+
+        # Nettoyer la session
+        if 'classrooms_to_delete' in request.session:
+            del request.session['classrooms_to_delete']
+
+        messages.success(
+            request,
+            f"{count} classe(s) ont été supprimées avec succès!"
+        )
+        return redirect('delete_classroom')
+
+    # GET : afficher la confirmation
+    classroom_ids = request.session.get('classrooms_to_delete', [])
+    classrooms = Classroom.objects.filter(id__in=classroom_ids)
+
+    if not classrooms.exists():
+        messages.warning(request, "Aucune classe à confirmer.")
+        return redirect('delete_classroom')
+
+    context = {
+        'classrooms': classrooms,
+    }
+
+    return render(request, 'classroom/delete_multiple_classrooms_confirm.html', context)
+
