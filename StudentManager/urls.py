@@ -22,12 +22,14 @@ from classroom.views import (
     classroom_home_view, display_classrooms_view, add_classroom_view,
     update_classroom_info_view, add_students_to_classroom_view,
     delete_students_from_classroom_view, calculate_classroom_average_view,
-    delete_classroom_view,
     classroom_students_partial_view,
     select_students_to_delete_view,
     delete_student_from_classroom_view,
     delete_multiple_students_from_classroom_view,
     delete_multiple_students_from_classroom_confirm_view,
+    delete_classroom_view,
+    delete_multiple_classrooms_view,
+    delete_multiple_classrooms_confirm_view,
 )
 
 from student.views import (
@@ -69,10 +71,15 @@ urlpatterns = [
     path('classroom/<int:classroom_id>/delete-multiple-students/', delete_multiple_students_from_classroom_view, name='delete_multiple_students_from_classroom'),
     path('classroom/<int:classroom_id>/delete-multiple-confirm/', delete_multiple_students_from_classroom_confirm_view, name='delete_multiple_students_from_classroom_confirm'),
 
+    # Routes pour la suppression de classes
+    path('classroom/delete-classroom/', delete_classroom_view, name='delete_classroom'),
+    path('classroom/delete-classroom/<int:classroom_id>/', delete_classroom_view, name='delete_classroom'),
+    path('classroom/delete-multiple-classrooms/', delete_multiple_classrooms_view, name='delete_multiple_classrooms'),
+    path('classroom/delete-multiple-classrooms-confirm/', delete_multiple_classrooms_confirm_view, name='delete_multiple_classrooms_confirm'),
+
     path('classroom/add-students/', add_students_to_classroom_view, name='add_students_to_classroom'),
     path('classroom/delete-students/', delete_students_from_classroom_view, name='delete_students_from_classroom'),
     path('classroom/calculate-classroom-average/', calculate_classroom_average_view, name='calculate_classroom_average'),
-    path('classroom/delete-classroom/', delete_classroom_view, name='delete_classroom'),
     path('classroom/<int:classroom_id>/students/', classroom_students_partial_view, name='classroom_students_partial'),
 
     # Routes pour l'application student
